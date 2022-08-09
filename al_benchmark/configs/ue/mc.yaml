@@ -1,0 +1,3 @@
+mc_iterations: 10
+seed: 42
+to_eval_mode: False

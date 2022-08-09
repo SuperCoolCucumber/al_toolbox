@@ -1,0 +1,11 @@
+python train.py \
+    --student_type distilelectra \
+    --student_config training_configs/distilelectra.json \
+    --teacher_type electra \
+    --teacher_name google/electra-base-discriminator \
+    --alpha_ce 5.0 --alpha_mlm 2.0 --alpha_cos 1.0 --alpha_act 1.0 --alpha_clm 0.0 --mlm \
+    --freeze_pos_embs \
+    --data_file data/binarized_text.electra.pickle \
+    --token_counts data/token_counts.electra.pickle \
+    --dump_path ./serialization_dir/distilelectra \
+    --force # overwrites the `dump_path` if it already exists.

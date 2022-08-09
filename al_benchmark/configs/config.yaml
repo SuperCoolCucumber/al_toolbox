@@ -1,0 +1,43 @@
+cuda_devices: [0]
+task_names: ''
+hydra:
+  run:
+    dir: ./workdir/logs/${now:%Y-%m-%d}/${now:%H-%M-%S}
+    
+tasks:
+    # - 
+    #     name: 'bert_qa'
+    #     config_path: '../configs/'
+    #     config_name: 'al_cls.yaml'
+    #     command: './active_learning/run_active_learning.py'
+    #     environ: ''
+    #     args: 'al.strategy=br_ties'
+    #     seeds: [13,17,42,]
+    #     n_repeats: 1
+    - 
+        name: 'bert_qa'
+        config_path: '../configs/'
+        config_name: 'al_cls.yaml'
+        command: './active_learning/run_active_learning.py'
+        environ: ''
+        args: 'al.strategy=lc'
+        seeds: [13,17,42]
+        n_repeats: 1
+#    - 
+#        name: 'bert_adapt'
+#        config_path: '../configs/'
+#        config_name: 'al_cls_asm.yaml'
+#        command: '../../active_learning/active_learning/run_active_learning.py'
+#        environ: ''
+#        args: 'acquisition_model.name=bert-base-uncased successor_model.name=bert-base-uncased offline_mode=True cache_model_and_dataset=True cache_dir=cache'
+#        seeds: [13, 42, 17, 978263, 123]
+#        n_repeats: 1  
+#    - 
+#        name: 'bert_adapt'
+#        config_path: '../configs/'
+#        config_name: 'al_cls_asm.yaml'
+#        command: '../../active_learning/active_learning/run_active_learning.py'
+#        environ: ''
+#        args: 'acquisition_model.name=distilbert-base-uncased successor_model.name=bert-base-uncased offline_mode=True cache_model_and_dataset=True cache_dir=cache'
+#        seeds: [13, 42, 17, 978263, 123]
+#        n_repeats: 1          

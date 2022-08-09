@@ -1,0 +1,51 @@
+output_dir: './workdir/run_active_learning'
+hydra:
+  run:
+    dir: ${output_dir}/${now:%Y-%m-%d}/${now:%H-%M-%S}_${seed}_${to_string:${acquisition_model.checkpoint}}
+  sweep:
+    dir: ${output_dir}/${now:%Y-%m-%d}/${now:%H-%M-%S}_${seed}_${to_string:${acquisition_model.checkpoint}}
+    subdir: ${hydra.job.num}
+    
+seed: 42
+cuda_device: 0
+cache_dir: ./workdir/cache_${seed}_${to_string:${acquisition_model.checkpoint}}
+cache_model_and_dataset: False
+storage_path: 'storage'
+al_ner_config_path: '../../active_learning_nlp/configs/al_ner.yaml'
+
+data:
+  dataset_name: 'conll2003'
+  path: '../data/autoner'
+  entity_config_path: 'entities.json'
+  markup: 'IO'
+  separator: ' '
+  tag_index: 2
+  text_name: 'tokens'
+  label_name: 'ner_tags'
+
+sampler: 'KeepFromDatasetSampler' # 'SentenceSampler'
+
+acquisition_model:
+    name: 'BERTTokenClassification'
+    pretrained_name: 'bert-base-cased'
+    markup: 'IO'
+    type:
+
+    training:
+        total_epochs: 4
+        verbose: True
+        visualized_predictions_number: 1
+        freeze_embeddings: False
+        save_top_k: 1
+        early_stopping_epochs: 10
+        iou_threshold: 0.99
+
+successor_model:
+al:
+    strategy: 'mnlp'
+    num_queries: 25
+    init_p_or_n: 0.02
+    step_p_or_n: 0.02
+    split_by_tokens: True
+    strategy_kwargs:
+
