@@ -40,7 +40,7 @@ def run_active_learning(config, work_dir):
     log.info("Loading data...")
     cache_dir = config.cache_dir if config.cache_model_and_dataset else None
     train_instances, dev_instances, test_instances, labels_or_id2label = load_data(
-        config.data, config.acquisition_model.type, config.framework.name, cache_dir,
+        config.data, config.acquisition_model.task, cache_dir,
     )
 
     init_n = (
@@ -67,7 +67,7 @@ def run_active_learning(config, work_dir):
         query_ids = json_load(config.al.strategy_kwargs.queries_path)
 
     # Set framework
-    framework = config.framework.name
+    framework = config.framework
     # Set time dict path
     time_dict_path = get_time_dict_path(config)
 

@@ -3,10 +3,7 @@ from typing import Union
 import numpy as np
 from datasets.arrow_dataset import Dataset
 
-from .al_strategy_utils import (
-    take_idx,
-    get_query_idx_for_selecting_by_number_of_tokens,
-)
+from .al_strategy_utils import get_query_idx_for_selecting_by_number_of_tokens
 from ..utils.transformers_dataset import TransformersDataset
 
 
@@ -26,7 +23,7 @@ def random_sampling(
     else:
         query_idx = np.random.choice(range(len(X_pool)), n_instances, replace=False)
 
-    query = take_idx(X_pool, query_idx)
+    query = X_pool.select(query_idx)
     # Uncertainty estimates are not defined with random sampling
     uncertainty_estimates = np.zeros(len(X_pool))
 

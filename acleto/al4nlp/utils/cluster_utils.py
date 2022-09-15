@@ -4,6 +4,7 @@ Code from https://github.com/forest-snow/alps
 import numpy as np
 import torch
 from scipy.spatial.distance import cdist
+
 # for A100 we can use cuml
 from sklearn.cluster import KMeans
 from tqdm import tqdm

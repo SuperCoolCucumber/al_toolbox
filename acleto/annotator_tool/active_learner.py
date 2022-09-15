@@ -11,20 +11,17 @@ class ActiveLearner:
 
     def __init__(
         self,
-        active_learn_alg, 
-        
+        active_learn_alg,
         X_labeled_dataset,
         y_labeled_dataset,
         X_unlabeled_dataset,
         y_unlabeled_dataset=None,
-        
         model_evaluate=None,
         X_test_dataset=None,
         y_test_dataset=None,
         eval_metrics=None,
-        
         rnd_start_steps=0,
-        n_instances=10
+        n_instances=10,
     ):
         """
         ActiveLearner constructor.
@@ -43,16 +40,14 @@ class ActiveLearner:
 
         """
         super().__init__()
-        
+
         self._X_unlabeled_dataset = X_unlabeled_dataset
         self._X_labeled_dataset = X_labeled_dataset
         self._y_labeled_dataset = y_labeled_dataset
         if y_unlabeled_dataset is not None:
-            self._y_unlabeled_dataset  = y_unlabeled_dataset 
+            self._y_unlabeled_dataset = y_unlabeled_dataset
         else:
-            self._y_unlabeled_dataset  = [None] * len(
-                self._X_unlabeled_dataset
-            )
+            self._y_unlabeled_dataset = [None] * len(self._X_unlabeled_dataset)
 
         self._active_learn_alg = active_learn_alg
 
@@ -63,7 +58,7 @@ class ActiveLearner:
 
         self._iteration_num = 0
         self._rnd_start_steps = rnd_start_steps
-        
+
         self.n_instances = n_instances
 
     def _select_unannotated(self, labels):
@@ -71,17 +66,20 @@ class ActiveLearner:
 
     def start(self):
         self._active_learn_alg.start(
-            self._X_labeled_dataset, self._y_labeled_dataset, 
-            self._X_unlabeled_dataset, self._y_unlabeled_dataset)
+            self._X_labeled_dataset,
+            self._y_labeled_dataset,
+            self._X_unlabeled_dataset,
+            self._y_unlabeled_dataset,
+        )
 
     def choose_random_sample_for_annotation(self, number):
-#         if len(np.where([(e is None) for e in self._y_unlabeled_dataset])[0]) == len(
-#             self._X_unlabeled_dataset
-#         ):
-            
-#         else:
-#             ids_array = np.arange(len(self._X_unlabeled_dataset))
-# TODO: fix
+        #         if len(np.where([(e is None) for e in self._y_unlabeled_dataset])[0]) == len(
+        #             self._X_unlabeled_dataset
+        #         ):
+
+        #         else:
+        #             ids_array = np.arange(len(self._X_unlabeled_dataset))
+        # TODO: fix
         ids_array = self._select_unannotated(self._y_unlabeled_dataset)
         return np.random.choice(ids_array, size=number, replace=False)
 
@@ -89,7 +87,9 @@ class ActiveLearner:
         if self._iteration_num < self._rnd_start_steps:
             return self.choose_random_sample_for_annotation(self.n_instances)
         else:
-            return self._active_learn_alg.choose_samples_for_annotation(self.n_instances)
+            return self._active_learn_alg.choose_samples_for_annotation(
+                self.n_instances
+            )
 
     def evaluate(self, fit_model=True):
         if self._model_evaluate is None:
@@ -119,11 +119,11 @@ class ActiveLearner:
         return res
 
     def add_answers(self, indexes, answers):
-        answers = pd.Series(answers, index=indexes, dtype='object')
+        answers = pd.Series(answers, index=indexes, dtype="object")
         answers = answers[answers.notnull()]
         logger.info(f"Iteration Answers: {answers.to_dict()}")
         for num, i in enumerate(answers.index):
             self._y_unlabeled_dataset[i] = answers[i]
-            
+
     def is_busy(self):
         return False

@@ -1,8 +1,9 @@
 import logging
 from pathlib import Path
+from pandas import DataFrame
 
 import numpy as np
-from datasets import load_dataset
+from datasets import load_dataset, Dataset
 
 from .preprocessing import (
     preprocess_img,
@@ -17,13 +18,18 @@ log = logging.getLogger()
 
 
 class HuggingFaceDatasetsReader:
-    def __init__(self, *dataset_args, cache_dir=None, use_auth_token=None):
+    def __init__(
+        self, *dataset_args, cache_dir=None, extra_key=None, use_auth_token=None
+    ):
         self.dataset = load_dataset(
             *dataset_args, cache_dir=cache_dir, use_auth_token=use_auth_token
         )
+        self.extra_key = extra_key
 
     def __call__(self, phase, text_name=None, label_name=None):
         dataset = self.dataset[phase]
+        if self.extra_key is not None:
+            dataset = Dataset.from_pandas(DataFrame(dataset[self.extra_key]))
         if text_name is not None and label_name is not None:
             dataset = dataset.remove_columns(
                 [
@@ -41,10 +47,16 @@ def load_huggingface_dataset(config, task, cache_dir=None):
     data_cache_dir = Path(cache_dir) / "data" if cache_dir is not None else None
     text_name = config.text_name
     label_name = config.label_name
+    default_extra_key = "translation" if task == "nmt" else None
+    extra_key = config.get("extra_key", default_extra_key)
+
     kwargs = {
         "cache_dir": data_cache_dir,
         "use_auth_token": config.get("use_auth_token", None),
+        "extra_key": extra_key,
     }
+    if config.get("revision_master"):
+        kwargs["revision"] = "master"
 
     hfdreader = (
         HuggingFaceDatasetsReader(config.dataset_name, **kwargs)
@@ -93,6 +105,8 @@ def load_huggingface_dataset(config, task, cache_dir=None):
             i: val
             for i, val in enumerate(train_dataset.features[label_name].feature.names)
         }
+    elif task in ["ats", "nmt"]:
+        id2label = None
     elif task == "cv_cls":
         id2label = {
             i: val for i, val in enumerate(train_dataset.features[label_name].names)

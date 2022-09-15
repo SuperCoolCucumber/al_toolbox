@@ -11,7 +11,7 @@ cuda_device: 0
 cache_dir: ./${output_dir}/cache_${seed}_${to_string:${model.checkpoint}}
 cache_model_and_dataset: False
 dump_model: True
-framework: ???
+framework: 'transformers'
 task: 'ner'
 offline_mode: False
 
@@ -47,7 +47,7 @@ model:
             patience: 5
             grad_clipping: 1.
             serialization_dir: ./output/${to_string:${model.checkpoint}}_${seed}_${now:%Y-%m-%d}_${now:%H-%M-%S}
-            validation_metric: ${framework.validation_metric_ner}
+            validation_metric: 'overall_f1'
             evaluation_strategy: 'epoch' # for transformers wrapper, 'epoch' or 'steps' or 'no'
             load_best_at_end: True
             eval_metrics:
@@ -63,6 +63,3 @@ model:
         scheduler_args:
             warmup_steps_factor: 0.1
             use_adafactor: False
-
-defaults:
-  - framework: transformers # 'allennlp' or 'transformers'

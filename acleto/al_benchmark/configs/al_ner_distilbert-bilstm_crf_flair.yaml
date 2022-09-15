@@ -12,7 +12,7 @@ cache_dir: './workdir/cache'
 cache_model_and_dataset: False
 time_dir: ./workdir/cache_${seed}_${to_string:${acquisition_model.checkpoint}}
 dump_model: True
-framework: ???
+framework: 'flair'
 task: 'ner'
 offline_mode: False
 
@@ -133,6 +133,3 @@ al:
     iters_to_recalc_scores: [0, 1, 4, 8]
     evaluate_query: True
     strategy_kwargs:
-
-defaults:
-  - framework: flair # 'allennlp' or 'transformers'

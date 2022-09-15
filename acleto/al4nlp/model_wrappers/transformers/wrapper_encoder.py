@@ -15,9 +15,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 from transformers import TrainingArguments, Trainer, set_seed, AutoTokenizer
 
-from .transformers_base_wrapper import (
-    TransformersBaseWrapper,
-)
+from .transformers_base_wrapper import TransformersBaseWrapper
 from ...models import INIT_MODELS_DICT
 from ...utils.general import (
     tensor_to_numpy,
@@ -151,7 +149,7 @@ class WrapperEncoder(TransformersBaseWrapper):
         calculate_time: bool = False,
         use_predict_loop: bool = False,
         calculate_metrics: bool = False,
-        test_mode: bool = True,
+        evaluate: bool = False,
         **predict_loop_kwargs,
     ):
 
@@ -166,10 +164,9 @@ class WrapperEncoder(TransformersBaseWrapper):
             data = self.tokenize_data(
                 tokenizer=self.tokenizer,
                 data=data,
-                task=self.task,
                 text_name=text_name,
                 label_name=label_name,
-                test_mode=test_mode,
+                test_mode=not evaluate,
                 **self.get_additional_tokenization_inference_kwargs(),
             )
 
@@ -182,7 +179,9 @@ class WrapperEncoder(TransformersBaseWrapper):
         if getattr(self, "trainer", None) is not None and not use_predict_loop:
             predictions = self.trainer.predict(data)
         else:
-            result = self._model_predict_loop(data, **predict_loop_kwargs)
+            result = self._model_predict_loop(
+                data, evaluate=evaluate, **predict_loop_kwargs
+            )
             loss, logits, extra_data = (
                 result["loss"],
                 result["logits"],
@@ -228,7 +227,7 @@ class WrapperEncoder(TransformersBaseWrapper):
         to_numpy: bool = True,
         use_predict_loop: bool = False,
         calculate_metrics: bool = False,
-        test_mode: bool = True,
+        evaluate: bool = False,
         **predict_loop_kwargs,
     ):
         logits = self.predict_logits(
@@ -237,7 +236,7 @@ class WrapperEncoder(TransformersBaseWrapper):
             data_config=data_config,
             use_predict_loop=use_predict_loop,
             calculate_metrics=calculate_metrics,
-            test_mode=test_mode,
+            evaluate=evaluate,
             **predict_loop_kwargs,
         )
         probas = softmax(torch.Tensor(logits).to(self.model.device), dim=-1)

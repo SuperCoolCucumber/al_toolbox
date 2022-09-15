@@ -669,10 +669,8 @@ def hybrid_sampling(
         trainer=model.trainer,
     )
 
-    tokenized_train = model.tokenize_data(
-        tokenizer, X_train, task, text_name, label_name
-    )
-    tokenized_pool = model.tokenize_data(tokenizer, X_pool, task, text_name, label_name)
+    tokenized_train = model.tokenize_data(tokenizer, X_train, text_name, label_name)
+    tokenized_pool = model.tokenize_data(tokenizer, X_pool, text_name, label_name)
 
     estimator = UeEstimatorHybrid(cls, ue_cfg, None, tokenized_train)
     estimator.fit_ue(tokenized_train)

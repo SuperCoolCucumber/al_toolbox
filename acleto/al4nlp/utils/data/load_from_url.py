@@ -2,6 +2,7 @@ import gzip
 import json
 import logging
 import os
+from copy import deepcopy
 
 import numpy as np
 import pytreebank
@@ -10,6 +11,8 @@ from datasets import Dataset, DatasetDict
 from sklearn.datasets import fetch_20newsgroups
 from sklearn.model_selection import train_test_split
 
+from transformers import TRANSFORMERS_CACHE
+
 log = logging.getLogger(__name__)
 
 
@@ -17,20 +20,24 @@ def load_data_from_url(config, cache_dir):
 
     LOAD_FUNCS_AND_ARGS = {
         "amazon": (load_amazon_5core, [config, cache_dir]),
-        "20newsgroups": (load_20newsgroups, config),
-        "sst5": (load_sst5, config),
+        "20newsgroups": (load_20newsgroups, [config]),
+        "sst5": (load_sst5, [config]),
     }
     load_func, args = LOAD_FUNCS_AND_ARGS[config.dataset_name]
-    return load_func(args)
+    return load_func(*args)
 
 
 def load_amazon_5core(config, cache_dir=None):
-    """Return closest version of Amazon Reviews Sports & Outdoors split from the paper
+    """
+    Return closest version of Amazon Reviews Sports & Outdoors split from the paper
     Towards More Accurate Uncertainty Estimation In Text Classification.
     """
+    if cache_dir is None:
+        cache_dir = TRANSFORMERS_CACHE
     texts, targets = [], []
     # get zipped dataset
     url = "http://snap.stanford.edu/data/amazon/productGraph/categoryFiles/reviews_Sports_and_Outdoors_5.json.gz"
+    os.makedirs(cache_dir, exist_ok=True)
     save_path = os.path.join(cache_dir, "amazon_5core.json.gz")
     # check if file already exists, load if not
     if not (os.path.isfile(save_path)):
@@ -40,22 +47,27 @@ def load_amazon_5core(config, cache_dir=None):
         for line in f.readlines():
             data = json.loads(line)
             texts.append(data["reviewText"])
-            targets.append(np.int64(data["overall"]))
+            targets.append(int(data["overall"]))
     # to shift classes from 1-5 to 0-4
     targets = np.asarray(targets) - 1
     # split on train|val|test
     seed = getattr(config, "seed", 42)
-    text_buf, text_eval, targ_buf, targ_eval = train_test_split(
-        texts, targets, test_size=0.1, random_state=seed
+    if isinstance(config.get("test_size_split", None), int):
+        test_size = config.get("test_size_split") / len(texts)
+    else:
+        test_size = 1 - config.get("train_size_split", 0.8)
+    text_train, text_test, targ_train, targ_test = train_test_split(
+        texts, targets, test_size=test_size, random_state=seed
     )
-    text_train, text_val, targ_train, targ_val = train_test_split(
-        text_buf, targ_buf, test_size=2.0 / 9.0, random_state=seed
-    )
-    amazon_train = {"label": targ_train, "text": text_train}
-    amazon_eval = {"label": targ_eval, "text": text_eval}
-    train_dataset = Dataset.from_dict(amazon_train)
-    dev_dataset = test_dataset = Dataset.from_dict(amazon_eval)
-    return train_dataset, dev_dataset, test_dataset, None
+
+    train_dataset = Dataset.from_dict({"label": targ_train, "text": text_train})
+    test_dataset = Dataset.from_dict({"label": targ_test, "text": text_test})
+    unique_targets = np.unique(targets)
+    label2id = {str(target): int(target) for target in unique_targets}
+    log.info(f"Loaded train size: {len(train_dataset)}")
+    log.info(f"Loaded test size: {len(test_dataset)}")
+
+    return train_dataset, deepcopy(test_dataset), test_dataset, label2id
 
 
 def load_20newsgroups(config):
@@ -90,7 +102,6 @@ def load_sst5(config):
             df["label"].append(item.to_labeled_lines()[0][0])
         cat_name = category if category != "dev" else "validation"
         sst_datasets[cat_name] = Dataset.from_dict(df)
-    dataset = DatasetDict(sst_datasets)
     train_dataset = sst_datasets["train"]
     dev_dataset = sst_datasets[cat_name]
     test_dataset = sst_datasets["test"]

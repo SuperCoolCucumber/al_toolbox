@@ -1,6 +1,7 @@
 import logging
 import os
 import shutil
+from copy import deepcopy
 
 import numpy as np
 import torch
@@ -105,6 +106,35 @@ def check_models(config):
                     config[model]["embeddings_cache_dir"],
                 )
     return None, None
+
+
+def load_embeddings_if_necessary(*datasets, config):
+    from datasets import concatenate_datasets
+
+    embeddings, word2idx = None, None
+    embeddings_path, embeddings_cache_dir = check_models(config)
+    if embeddings_path is not None:
+        # load embeddings
+        try:
+            all_data = concatenate_datasets([*datasets])
+        except:
+            all_data = deepcopy(datasets[0])
+            for i in range(1, len(datasets)):
+                all_data.add(datasets[i])
+        if "model" in config.keys():
+            embeddings_path = config.model.embeddings_path
+            embeddings_cache_dir = config.model.embeddings_cache_dir
+        else:
+            embeddings_path = config.acquisition_model.embeddings_path
+            embeddings_cache_dir = config.acquisition_model.embeddings_cache_dir
+        embeddings, word2idx = load_embeddings_with_text(
+            all_data,
+            embeddings_path,
+            embeddings_cache_dir,
+            text_name=config.data.text_name,
+            n_vectors=config.data.get("n_vector", None),
+        )
+    return embeddings, word2idx
 
 
 def load_embeddings_with_text(

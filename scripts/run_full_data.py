@@ -7,10 +7,7 @@ from pathlib import Path
 import hydra
 from omegaconf import OmegaConf
 
-from acleto.al4nlp.utils.embeddings import (
-    load_embeddings_with_text,
-    check_models,
-)
+from acleto.al4nlp.utils.embeddings import load_embeddings_if_necessary
 from acleto.al4nlp.utils.general import get_time_dict_path_full_data, log_config
 from acleto.al4nlp.utils.main_decorator import main_decorator
 
@@ -37,30 +34,19 @@ def run_full_data(config, work_dir: Path or str):
     log.info("Loading data...")
     cache_dir = config.cache_dir if config.cache_model_and_dataset else None
     train_instances, dev_instances, test_instances, labels_or_id2label = load_data(
-        config.data, config.model.type, config.framework.name, cache_dir,
+        config.data, config.model.type, cache_dir,
     )
-    if dev_instances == test_instances and config.model.training.dev_size == 0:
+    if (
+        dev_instances == test_instances
+        and config.model.training.dev_size == 0
+        and not config.get("force_use_dev_sample")
+    ):
         config.model.training.dev_size = 0.1
 
-    embeddings, word2idx = None, None
-    embeddings_path, embeddings_cache_dir = check_models(config)
-    if embeddings_path is not None:
-        # load embeddings
-        try:
-            all_data = concatenate_datasets(
-                [train_instances, dev_instances, test_instances]
-            )
-        except:
-            all_data = copy.deepcopy(train_instances)
-            all_data.add(dev_instances)
-            all_data.add(test_instances)
-        embeddings, word2idx = load_embeddings_with_text(
-            all_data,
-            config.model.embeddings_path,
-            config.model.embeddings_cache_dir,
-            text_name=config.data.text_name,
-            n_vectors=config.data.get("n_vector", None),
-        )
+    embeddings, word2idx = load_embeddings_if_necessary(
+        train_instances, dev_instances, test_instances, config=config
+    )
+
     # Initialize time dict
     time_dict_path = get_time_dict_path_full_data(config)
 
@@ -69,7 +55,7 @@ def run_full_data(config, work_dir: Path or str):
         config,
         config.model,
         dev_instances,
-        config.framework.name,
+        config.framework,
         labels_or_id2label,
         "model",
         time_dict_path,
@@ -96,7 +82,13 @@ def run_full_data(config, work_dir: Path or str):
     log.info("Done with evaluation.")
 
     if getattr(config, "push_to_hub", False):
-        hub_name = f"{config.model.name}_{config.data.dataset_name}_{config.seed}"
+        dataset_name = (
+            config.data.dataset_name
+            if isinstance(config.data.dataset_name, str)
+            else config.data.dataset_name[-1]
+        )
+        hub_name = f"{config.model.checkpoint}_{dataset_name}_{config.seed}"
+        log.info("Hub name:", {hub_name})
         model.model.push_to_hub(hub_name, use_temp_dir=True)
         model.tokenizer.push_to_hub(hub_name, use_temp_dir=True)
 

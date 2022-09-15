@@ -53,7 +53,7 @@ os.system("chmod a+x init.sh examples/*")
 setup(
     name="acleto",
     packages=find_packages(include=["acleto*"]),
-    version="0.0.3",
+    version="0.0.5",
     description="A Library for active learning. Supports text classification and sequence tagging tasks.",
     author="Tsvigun A., Sanochkin L., Kuzmin G., Larionov D., and Dr Shelmanov A.",
     license="MIT",

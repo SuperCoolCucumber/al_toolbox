@@ -1,9 +1,7 @@
 import sys
 from importlib import import_module
 
-from transformers import (
-    set_seed,
-)
+from transformers import set_seed
 
 from ..transformers.wrapper_encoder import WrapperEncoder
 from ...models import PYTORCH_INIT_MODELS_DICT

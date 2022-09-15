@@ -4,9 +4,7 @@ from typing import Union, List, Tuple
 from datasets.metric import Metric
 from transformers import AutoModelForSequenceClassification, DataCollatorWithPadding
 
-from .transformers_base_wrapper import (
-    TransformersBaseWrapper,
-)
+from .transformers_base_wrapper import TransformersBaseWrapper
 from .wrapper_encoder import WrapperEncoder
 
 log = logging.getLogger()
@@ -42,6 +40,10 @@ class WrapperCls(WrapperEncoder, TransformersBaseWrapper):
         return DataCollatorWithPadding
 
     @staticmethod
+    def get_metric_name():
+        return "test_accuracy"
+
+    @staticmethod
     def get_datasets_metric_name():
         return "accuracy"
 
@@ -52,10 +54,6 @@ class WrapperCls(WrapperEncoder, TransformersBaseWrapper):
     @staticmethod
     def get_model_class():
         return AutoModelForSequenceClassification
-
-    @staticmethod
-    def get_metric_name():
-        return "test_accuracy"
 
     def get_kwargs_for_compute_metrics_fn(self):
         return {"num_labels": self.num_labels}

@@ -81,7 +81,9 @@ def add_new_model_to_time_dict(time_dict_path, new_model_name):
 
 
 def get_target_model_checkpoints(config, framework="transformers"):
-    checkpoints_path = Path(config.successor_model.training.trainer_args.serialization_dir)
+    checkpoints_path = Path(
+        config.successor_model.training.trainer_args.serialization_dir
+    )
     model_name = "pytorch_model.pt" if framework == "flair" else "pytorch_model.bin"
     models_paths = [
         x / model_name
@@ -172,7 +174,7 @@ def get_config_to_update(dataset_configs_path, dataset_name, model_name):
 
 
 def initialize_metrics_dict(
-    model_type: str,  # cls, ner, cv-cls
+    model_type: str,  # cls, ner, ats, nmt, cv-cls
     work_dir: str or Path,
     model_name: str,
     framework: str = "transformers",
@@ -182,24 +184,6 @@ def initialize_metrics_dict(
     Create dict of metrics
     """
     metrics_dict = {}
-    if framework == "allennlp":  # If framework == "transformers", dump the empty dict
-        if model_type == "cls":
-            keys = ["accuracy", "loss"]
-        elif model_type == "ner":
-            keys = [
-                "accuracy",
-                "accuracy3",
-                "precision-overall",
-                "recall-overall",
-                "f1-measure-overall",
-                "loss",
-            ]
-        else:  # Hence it is AutoNER
-            keys = ["micro", "macro", "weighted"]
-
-        for phase in ["train", "test"]:
-            for key in keys:
-                metrics_dict[phase + "_" + key] = []
 
     path_to_dump = Path(work_dir) / f"{model_name}_metrics.json"
     json_dump(metrics_dict, path_to_dump)

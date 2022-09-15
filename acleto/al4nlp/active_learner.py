@@ -13,7 +13,7 @@ class ActiveLearner:
         self,
         estimator,
         query_strategy,
-        train_data, # labeled_data
+        train_data,  # labeled_data
         strategy_kwargs=None,
         sampling_strategy=None,
         sampling_kwargs=None,
@@ -22,7 +22,7 @@ class ActiveLearner:
     ):
         self.estimator = estimator
         self.query_strategy = query_strategy
-        self.train_data = train_data  
+        self.train_data = train_data
         self.strategy_kwargs = strategy_kwargs if strategy_kwargs is not None else {}
         self.sampling_strategy = sampling_strategy
         self.sampling_kwargs = sampling_kwargs if sampling_kwargs is not None else {}
@@ -49,7 +49,9 @@ class ActiveLearner:
         strategy_kwargs.update(kwargs)
 
         start_time = time()
-        output = self.query_strategy(self.estimator, X_pool, n_instances, **strategy_kwargs)
+        output = self.query_strategy(
+            self.estimator, X_pool, n_instances, **strategy_kwargs
+        )
         query_time = time() - start_time
         self._add_obs_to_time_dict("query", query_time)
 

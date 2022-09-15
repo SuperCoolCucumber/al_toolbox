@@ -1,3 +1,0 @@
-name: transformers
-validation_metric_cls: accuracy
-validation_metric_ner: overall_f1

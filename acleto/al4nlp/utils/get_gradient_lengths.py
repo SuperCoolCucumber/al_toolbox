@@ -3,10 +3,9 @@ import torch
 from torch.utils.data import DataLoader
 from tqdm.notebook import tqdm
 
-from ..model_wrappers.transformers.wrapper_cls import WrapperCls
-from ..model_wrappers.transformers.wrapper_ner import WrapperNer
+from ..model_wrappers.transformers import WrapperCls, WrapperNer, WrapperAts, WrapperNmt
 
-WRAPPERS = {"cls": WrapperCls, "ner": WrapperNer}
+WRAPPERS = {"cls": WrapperCls, "ner": WrapperNer, "ats": WrapperAts, "nmt": WrapperNmt}
 
 
 def compute_egl_scores(

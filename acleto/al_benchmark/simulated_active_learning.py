@@ -21,7 +21,7 @@ from ..al4nlp.constructors import construct_wrapper
 from ..al4nlp.constructors.construct_active_learner import (
     construct_active_learner,
     QUERY_STRATEGIES,
-    _get_strategy_from_path
+    _get_strategy_from_path,
 )
 from ..al4nlp.pool_subsampling_strategies import random_subsampling
 from ..al4nlp.query_strategies.al_strategy_utils import (
@@ -148,11 +148,7 @@ def update_unlabeled_data_and_uncertainty_estimates(
 
 
 def probably_fit_and_evaluate_model(
-    model,
-    test_data,
-    train_data=None,
-    require_fit=True,
-    model_name="successor",
+    model, test_data, train_data=None, require_fit=True, model_name="successor",
 ):
     if require_fit:
         model.fit(train_data)
@@ -165,11 +161,7 @@ def probably_fit_and_evaluate_model(
 
 
 def log_model(
-    log,
-    work_dir,
-    evaluate_dict,
-    model_name="successor",
-    idx=None,
+    log, work_dir, evaluate_dict, model_name="successor", idx=None,
 ):
     if idx is None:
         log.info(f"Initial AL iteration:\n{model_name.title()} model:")
@@ -273,7 +265,6 @@ def iteration_with_tracin(
     tokenized_data = target_model.tokenize_data(
         tokenizer=tokenizer,
         data=pseudo_labeled_data_copy,
-        task=target_model.task,
         text_name=target_model.data_config["text_name"],
         label_name=target_model.data_config["label_name"],
         save_first_bpe_mask=True,
@@ -543,7 +534,7 @@ def al_loop(
         unc_threshold_is_adaptive = True
         log.info("Adaptive uncertainty threshold is used")
     # Set framework
-    framework = config.framework.name
+    framework = config.framework
     # Set time dict path
     time_dict_path = get_time_dict_path(config)
     # Set cache dir
@@ -705,15 +696,19 @@ def al_loop(
             # take their original idx
             query_idx = sampled_idx[query_idx]
 
-        log_query_meta(log, work_dir, query_meta)
+        if len(query_meta) > 0:
+            log_query_meta(log, work_dir, query_meta)
 
         # Log the uncertainty of the queries instances
         if require_update_all_probabilities:
             sampled_uncertainty_estimates = uncertainty_estimates
-        log.info("### All uncertainty estimates ###")
-        log.info(
-            ", ".join(map(str, sorted(sampled_uncertainty_estimates.round(3))[::-1]))
-        )
+        if config.al.get("log_ue"):
+            log.info("### All uncertainty estimates ###")
+            log.info(
+                ", ".join(
+                    map(str, sorted(sampled_uncertainty_estimates.round(3))[::-1])
+                )
+            )
         log.info("### Uncertainties of the queries ###")
         log.info(", ".join(map(str, uncertainty_estimates[query_idx].round(5))))
         # ¡¡¡For debugging purposes - must be removed in real active learning!!!
@@ -723,11 +718,7 @@ def al_loop(
             )
             evaluate_dict = learner.estimator.evaluate(query_instance)
             log_model(
-                log,
-                work_dir,
-                evaluate_dict,
-                "acquisition_evaluate_query",
-                idx,
+                log, work_dir, evaluate_dict, "acquisition_evaluate_query", idx,
             )
         # Retrain the model, using the queried instances
         learner.teach(query_instance)

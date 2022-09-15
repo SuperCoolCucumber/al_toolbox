@@ -32,4 +32,4 @@ class SeqAnnotationVisualizer:
             widget.res = self._answers[index]
 
         self._widgets[index] = widget
-        return widget,
+        return (widget,)

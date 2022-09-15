@@ -42,11 +42,10 @@ from .strategy_utils.gmm import class_probs, gmm_evaluate, gmm_fit_, compute_den
 from ..utils.general import json_dump, json_load
 from ..utils.get_embeddings import get_embeddings, get_grad_embeddings
 from ..utils.transformers_dataset import TransformersDataset
-from ..model_wrappers.transformers.wrapper_cls import WrapperCls
-from ..model_wrappers.transformers.wrapper_ner import WrapperNer
+from ..model_wrappers.transformers import WrapperCls, WrapperNer, WrapperAts, WrapperNmt
 
 log = logging.getLogger()
-WRAPPERS = {"cls": WrapperCls, "ner": WrapperNer}
+WRAPPERS = {"cls": WrapperCls, "ner": WrapperNer, "ats": WrapperAts, "nmt": WrapperNmt}
 
 
 def get_query_idx_for_selecting_by_number_of_tokens(

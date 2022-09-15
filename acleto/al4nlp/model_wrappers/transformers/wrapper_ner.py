@@ -9,9 +9,7 @@ from transformers import (
     DataCollatorForTokenClassification,
 )
 
-from .transformers_base_wrapper import (
-    TransformersBaseWrapper,
-)
+from .transformers_base_wrapper import TransformersBaseWrapper
 from .wrapper_encoder import WrapperEncoder
 
 log = logging.getLogger()

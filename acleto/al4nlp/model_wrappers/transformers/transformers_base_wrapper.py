@@ -3,22 +3,22 @@ import os
 import time
 from abc import abstractmethod
 from pathlib import Path
+from typing import Dict, Union
 
 import mlflow
 import transformers
 from datasets import load_metric
 from omegaconf.omegaconf import DictConfig
 from torch import cuda
+from datasets import Dataset
 from transformers import (
     set_seed,
     EarlyStoppingCallback,
     TrainerCallback,
-    PrinterCallback
+    PrinterCallback,
 )
 
-from .trainer_for_pseudo_labeled import (
-    TrainerForPseudoLabeled,
-)
+from .trainer_for_pseudo_labeled import TrainerForPseudoLabeled
 from ...utils.general import (
     create_time_dict,
     json_dump,
@@ -83,10 +83,10 @@ class TransformersBaseWrapper:  # TODO: add interface
         self._dev_kwargs = DictConfig(dev_data_kwargs)
         if self.dev_data is not None and self._dev_kwargs.pop("tokenize_dev_data"):
             self.tokenized_dev_data = self.tokenize_data(
-                self.dev_data,
-                self.tokenizer,
-                self.data_config["text_name"],
-                self.data_config["label_name"],
+                data=self.dev_data,
+                tokenizer=self.tokenizer,
+                text_name=self.data_config["text_name"],
+                label_name=self.data_config["label_name"],
                 test_mode=False,
                 **self.get_additional_tokenization_train_kwargs(),
             )
@@ -112,7 +112,13 @@ class TransformersBaseWrapper:  # TODO: add interface
             create_time_dict(time_dict_path, name)
         self.time_dict_path = time_dict_path
 
-    def fit(self, train_data, from_scratch=True, is_tokenized=False, data_config=None):
+    def fit(
+        self,
+        train_data: Dataset,
+        from_scratch: bool = True,
+        is_tokenized: bool = False,
+        data_config: Union[Dict, DictConfig] = None,
+    ):
 
         # Here we "reverse" train and test to have train_test_split returning the data in the reversed way.
         # The idea is that for validation (i.e. development set) we want to use the instances, which would
@@ -139,7 +145,6 @@ class TransformersBaseWrapper:  # TODO: add interface
                 dev_data = self.tokenize_data(
                     tokenizer=self.tokenizer,
                     data=dev_data,
-                    task=self.task,
                     text_name=data_config["text_name"],
                     label_name=data_config["label_name"],
                     **self.get_additional_tokenization_train_kwargs(),
@@ -153,7 +158,6 @@ class TransformersBaseWrapper:  # TODO: add interface
                 dev_data = self.tokenize_data(
                     tokenizer=self.tokenizer,
                     data=self.dev_data,
-                    task=self.task,
                     text_name=data_config["text_name"],
                     label_name=data_config["label_name"],
                     **self.get_additional_tokenization_train_kwargs(),
@@ -194,7 +198,6 @@ class TransformersBaseWrapper:  # TODO: add interface
             train_data = self.tokenize_data(
                 data=train_data,
                 tokenizer=self.tokenizer,
-                task=self.task,
                 text_name=data_config["text_name"],
                 label_name=data_config["label_name"],
                 test_mode=False,
@@ -223,7 +226,8 @@ class TransformersBaseWrapper:  # TODO: add interface
         else:
             logging_and_evaluation_strategy = "epoch"
         save_strategy = (
-            self._trainer_kwargs.save_strategy if (self._trainer_kwargs.get("save_strategy"))
+            self._trainer_kwargs.save_strategy
+            if (self._trainer_kwargs.get("save_strategy"))
             else "no"
             if (not load_best and self.name != "successor")
             else logging_and_evaluation_strategy
@@ -313,11 +317,6 @@ class TransformersBaseWrapper:  # TODO: add interface
             compute_metrics=compute_metrics,
         )
         trainer.pop_callback(PrinterCallback)
-        # Prevent parallelization of small models
-        if (self.name == "acquisition" or self.name == "successor") and len(
-            os.environ.get("CUDA_VISIBLE_DEVICES", "0").split(",")
-        ) > 1:
-            trainer.args._n_gpu = 1
         self.trainer = trainer
 
         log.info(f"Starting training...")
@@ -333,9 +332,17 @@ class TransformersBaseWrapper:  # TODO: add interface
 
     def evaluate(self, data, is_tokenized=False, data_config=None, **kwargs):
         predictions = self.get_predictions(
-            data, is_tokenized, data_config, calculate_time=False, test_mode=False, **kwargs
+            data,
+            is_tokenized,
+            data_config,
+            calculate_time=False,
+            evaluate=True,
+            **kwargs,
         )
         return predictions.metrics
+
+    def optimize_hp(self, data: Dataset, hyperparameters_config):
+        return
 
     def tokenize_data(
         self,

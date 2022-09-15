@@ -13,23 +13,27 @@ def small_text_sampling(
     X_pool: Union[Dataset, TransformersDataset],
     n_instances: int,
     X_train: Union[Dataset, TransformersDataset],
-    small_text_strategy, 
+    small_text_strategy,
     **kwargs,
 ):
+    from small_text.query_strategies import (
+        LeastConfidence,
+        PredictionEntropy,
+    )
+
+    small_text_strategy_dict = {
+        "lc": LeastConfidence,
+        "ent": PredictionEntropy,
+    }
     all_data = concatenate_datasets([X_train, X_pool])
     indices_labeled = np.arange(len(X_train))
     indices_unlabeled = np.arange(len(X_train), len(X_pool))
-    small_text_strategy = small_text_strategy()
-    
+    small_text_strategy = small_text_strategy_dict[small_text_strategy]()
+
     query_idx = small_text_strategy.query(
-        model, 
-        all_data,
-        indices_unlabeled, 
-        indices_labeled,
-        None,
-        n=n_instances,
+        model, all_data, indices_unlabeled, indices_labeled, None, n=n_instances,
     )
-    
+
     uncertainty_estimates = np.zeros(len(X_pool))
     query = take_idx(all_data, query_idx)
 

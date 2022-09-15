@@ -2,6 +2,7 @@ import json
 import logging
 from collections import defaultdict
 from pathlib import Path
+from pandas import DataFrame
 
 from datasets import Dataset
 
@@ -17,6 +18,8 @@ log = logging.getLogger()
 def load_from_json_or_csv(config, task, cache_dir=None):
     text_name = config.text_name
     label_name = config.label_name
+    default_extra_key = "translation" if task == "nmt" else None
+    extra_key = config.get("extra_key", default_extra_key)
 
     path = Path(config.path) / config.dataset_name / "train.csv"
     # The dataset may be nod processed yet
@@ -32,6 +35,8 @@ def load_from_json_or_csv(config, task, cache_dir=None):
             )
             dataset = Dataset.from_json(str(path))
 
+    if extra_key is not None:
+        dataset = Dataset.from_pandas(DataFrame(dataset[extra_key]))
     dataset = dataset.remove_columns(
         [x for x in dataset.column_names if x not in [text_name, label_name, "id"]]
     )

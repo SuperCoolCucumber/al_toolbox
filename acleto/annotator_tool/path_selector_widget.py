@@ -18,7 +18,7 @@ def select_data_folders(path):
 class PathSelectorWidget(VBox):
     def __init__(self, data_path):
         style = {"description_width": "initial"}
-        
+
         attr_list = select_data_folders(data_path)
         dataset_list = []
         for item in attr_list:
@@ -30,7 +30,7 @@ class PathSelectorWidget(VBox):
             disabled=False,
             style=style,
         )
-        
+
         self.info_widget_save = widgets.Text(
             value=self.select_data_widget.value,
             placeholder="",
@@ -38,13 +38,13 @@ class PathSelectorWidget(VBox):
             disabled=False,
             style=style,
         )
-        
+
         self.select_data_widget.observe(self.on_select_change)
 
         display(self.info_widget_save, self.select_data_widget)
-    
+
     def on_select_change(self, change):
         try:
-            self.info_widget_save.value = change.owner.options[change.new['index']]
+            self.info_widget_save.value = change.owner.options[change.new["index"]]
         except:
             pass

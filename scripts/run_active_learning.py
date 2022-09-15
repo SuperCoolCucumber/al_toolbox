@@ -7,10 +7,7 @@ from pathlib import Path
 import hydra
 from omegaconf import OmegaConf
 
-from acleto.al4nlp.utils.embeddings import (
-    load_embeddings_with_text,
-    check_models,
-)
+from acleto.al4nlp.utils.embeddings import load_embeddings_if_necessary
 from acleto.al4nlp.utils.general import log_config
 from acleto.al4nlp.utils.main_decorator import main_decorator
 
@@ -40,30 +37,11 @@ def run_active_learning(config, work_dir):
     log.info("Loading data...")
     cache_dir = config.cache_dir if config.cache_model_and_dataset else None
     train_instances, dev_instances, test_instances, labels_or_id2label = load_data(
-        config.data, config.acquisition_model.type, config.framework.name, cache_dir,
+        config.data, config.acquisition_model.type, cache_dir,
     )
-    embeddings, word2idx = None, None
-    embeddings_path, embeddings_cache_dir = check_models(config)
-    if embeddings_path is not None:
-        # load embeddings
-        from datasets import concatenate_datasets
-
-        try:
-            all_data = concatenate_datasets(
-                [train_instances, dev_instances, test_instances]
-            )
-        except:
-            # in case of TransformersDataset
-            all_data = copy.deepcopy(train_instances)
-            all_data.add(dev_instances)
-            all_data.add(test_instances)
-        embeddings, word2idx = load_embeddings_with_text(
-            all_data,
-            embeddings_path,
-            embeddings_cache_dir,
-            text_name=config.data.text_name,
-            n_vectors=config.data.get("n_vector", None),
-        )
+    embeddings, word2idx = load_embeddings_if_necessary(
+        train_instances, dev_instances, test_instances, config=config
+    )
     # Make the initial split of the data onto labeled and unlabeled
     initial_data, unlabeled_data = initial_split(
         train_instances,

@@ -7,9 +7,9 @@ hydra:
 tasks:
     - 
         name: 'distilbert'
-        config_path: '../configs'
+        config_path: '../acleto/al_benchmark/configs'
         config_name: 'al_cls'
-        command: '../../active_learning/run_active_learning.py'
+        command: '../../scripts/run_active_learning.py'
         environ: ''
         args: 'data.dataset_name=bbc_news data.path=../../data acquisition_model.name=distilbert-base-uncased'
         seeds: [4837, 23419, 705525, 10671619, 1084218]

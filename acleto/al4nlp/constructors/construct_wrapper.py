@@ -7,10 +7,7 @@ from ..model_wrappers.pytorch import (
     PytorchClsWrapper,
     PytorchNerWrapper,
 )
-from ..model_wrappers.transformers import (
-    WrapperCls,
-    WrapperNer,
-)
+from ..model_wrappers.transformers import WrapperCls, WrapperNer, WrapperAts, WrapperNmt
 from ..models import (
     PYTORCH_INIT_MODELS_DICT,
     FLAIR_MODELS,
@@ -20,6 +17,8 @@ from ..utils.general import get_num_chekpoints
 TASK2WRAPPER = {
     "cls": WrapperCls,
     "ner": WrapperNer,
+    "ats": WrapperAts,
+    "nmt": WrapperNmt,
     "pytorch_cls": PytorchClsWrapper,
     "pytorch_ner": PytorchNerWrapper,
 }
@@ -27,6 +26,8 @@ TASK2WRAPPER = {
 TASK_SUBCLASS_KWARGS = {
     "cls": ["id2label", "num_labels"],
     "ner": ["id2label", "num_labels"],
+    "ats": [],
+    "nmt": [],
     "pytorch_cls": ["id2label", "num_labels", "embeddings", "word2idx"],
     "pytorch_ner": ["id2label", "num_labels", "embeddings", "word2idx"],
 }
@@ -44,7 +45,7 @@ def construct_wrapper(
     word2idx: dict = None,
 ):
     if framework is None:
-        framework = config.framework.name
+        framework = config.framework
     # in some cases we could have models both from hf and pytorch in one config, e. g. PLASM
     if (
         framework == "transformers"

@@ -5,9 +5,7 @@ from datasets.metric import Metric
 from transformers import DataCollatorWithPadding
 
 from .wrapper_encoder_pytorch import PytorchEncoderWrapper
-from ..transformers.transformers_base_wrapper import (
-    TransformersBaseWrapper,
-)
+from ..transformers.transformers_base_wrapper import TransformersBaseWrapper
 from ...models import PYTORCH_INIT_MODELS_DICT
 
 log = logging.getLogger()

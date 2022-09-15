@@ -4,10 +4,7 @@ from typing import Union
 import numpy as np
 from datasets.arrow_dataset import Dataset
 
-from .al_strategy_utils import (
-    take_idx,
-    calculate_mahalanobis_distance,
-)
+from .al_strategy_utils import calculate_mahalanobis_distance
 from ..utils.transformers_dataset import TransformersDataset
 
 log = logging.getLogger()
@@ -68,5 +65,5 @@ def mahalanobis_sampling(
         query_idx, uncertainty_estimates = calculate_mahalanobis_distance(
             n_instances=n_instances, **kwargs
         )
-    query = take_idx(X_pool, query_idx)
+    query = X_pool.select(query_idx)
     return query_idx, query, uncertainty_estimates

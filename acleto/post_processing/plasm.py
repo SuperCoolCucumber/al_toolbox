@@ -19,7 +19,7 @@ def label_data(
     threshold: Union[None, float, str] = None,
     uncertainty_filter_by_quantile: bool = False,
     pl_label_smoothing: Union[bool, float, str] = False,
-    **kwargs
+    **kwargs,
 ) -> Tuple[TransformersDataset, float]:
     use_threshold = (threshold is not None) and (
         isinstance(threshold, (ListConfig, list)) or (threshold > 0)
@@ -42,8 +42,8 @@ def label_data(
                 idx_to_save = np.argwhere(max_prob > threshold).ravel()
                 filtered_data_share = 1 - len(idx_to_save) / len(probas)
             log.info(
-                f"With uncertainty parameter {threshold}, {len(idx_to_save)} instances" +
-                f"will be kept ({round(1 - filtered_data_share, 4) * 100}% of data)."
+                f"With uncertainty parameter {threshold}, {len(idx_to_save)} instances"
+                + f"will be kept ({round(1 - filtered_data_share, 4) * 100}% of data)."
             )
         if isinstance(pl_label_smoothing, float):
             wrong_class_proba = (1 - pl_label_smoothing) / (probas.shape[-1] - 1)
@@ -74,11 +74,42 @@ def label_data(
                 idx_to_save = np.argwhere(scores > threshold).ravel()
                 filtered_data_share = 1 - len(idx_to_save) / len(probas)
             log.info(
-                f"With uncertainty parameter {threshold}, {len(idx_to_save)} instances" +
-                f"will be kept ({(1 - filtered_data_share) * 100:.5f}% of data)."
+                f"With uncertainty parameter {threshold}, {len(idx_to_save)} instances"
+                + f"will be kept ({(1 - filtered_data_share) * 100:.5f}% of data)."
             )
         pseudo_labels = np.array(
             [np.argmax(inst_logits, axis=1) for inst_logits in probas]
+        )
+    elif task in ["ats", "nmt"]:
+        generated_output = model.generate(data, to_numpy=True)
+        if use_threshold:
+            scores = generated_output["sequences_scores"]
+            if uncertainty_filter_by_quantile:
+                if isinstance(threshold, (int, float)):
+                    num_instances_to_filter = round(len(scores) * threshold)
+                    idx_to_save = np.argsort(scores)[num_instances_to_filter:]
+                    filtered_data_share = threshold
+                elif isinstance(threshold, (list, ListConfig)):
+                    left_instances_to_filter = round(len(scores) * threshold[0])
+                    right_instances_to_filter = round(len(scores) * threshold[1])
+                    idx_to_save = np.argsort(scores)[
+                        left_instances_to_filter:-right_instances_to_filter
+                    ]
+                    filtered_data_share = threshold[0] + threshold[1]
+                else:
+                    raise ValueError(
+                        f"Threshold must be either float/int or array-like, received type {type(threshold)}"
+                    )
+            else:
+                idx_to_save = np.argwhere(scores > threshold).ravel()
+                filtered_data_share = 1 - len(idx_to_save) / len(scores)
+            log.info(
+                f"With uncertainty parameter {threshold}, {len(idx_to_save)} instances will be kept ({(1 - filtered_data_share) * 100:.5f}% of data)."
+            )
+        pseudo_labels = np.array(
+            model.tokenizer.batch_decode(
+                generated_output["sequences"], skip_special_tokens=True
+            )
         )
     else:
         raise NotImplementedError
@@ -89,7 +120,9 @@ def label_data(
             if label_column_name in data.features:
                 dataset_kwargs["id2label"] = {
                     i: tag
-                    for i, tag in enumerate(data.features[label_column_name].feature.names)
+                    for i, tag in enumerate(
+                        data.features[label_column_name].feature.names
+                    )
                 }
             else:
                 dataset_kwargs["id2label"] = kwargs.get("id2label")

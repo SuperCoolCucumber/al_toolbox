@@ -15,10 +15,9 @@ from .model_modifications import (
     ModelForFeaturesExtraction,
 )
 from .transformers_dataset import TransformersDataset
-from ..model_wrappers.transformers.wrapper_cls import WrapperCls
-from ..model_wrappers.transformers.wrapper_ner import WrapperNer
+from ..model_wrappers.transformers import WrapperCls, WrapperNer, WrapperAts, WrapperNmt
 
-WRAPPERS = {"cls": WrapperCls, "ner": WrapperNer}
+WRAPPERS = {"cls": WrapperCls, "ner": WrapperNer, "ats": WrapperAts, "nmt": WrapperNmt}
 
 
 def get_embeddings(

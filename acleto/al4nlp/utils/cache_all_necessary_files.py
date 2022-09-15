@@ -46,6 +46,7 @@ def cache_model_and_tokenizer(task, model_name, cache_dir=None, end_word="cached
     from transformers import (
         AutoModelForSequenceClassification,
         AutoModelForTokenClassification,
+        AutoModelForSeq2SeqLM,
         AutoTokenizer,
     )
 
@@ -64,6 +65,8 @@ def cache_model_and_tokenizer(task, model_name, cache_dir=None, end_word="cached
         AutoModelForTokenClassification.from_pretrained(
             model_name, cache_dir=model_cache_dir
         )
+    elif task in ["ats", "nmt"]:
+        AutoModelForSeq2SeqLM.from_pretrained(model_name, cache_dir=model_cache_dir)
     log.info("=" * 10 + f" Model {model_name} successfully {end_word} " + "=" * 10)
     AutoTokenizer.from_pretrained(model_name, cache_dir=tokenizer_cache_dir)
     log.info("=" * 10 + f" Tokenizer {model_name} successfully {end_word} " + "=" * 10)
@@ -146,6 +149,10 @@ def cache_all(config, start_word="Caching", end_word="cached"):
         if config.task == "cls"
         else "seqeval"
         if config.task == "ner"
+        else "rouge"
+        if config.task == "ats"
+        else "sacrebleu"
+        if config.task == "nmt"
         else None
     )
     load_metric(main_metric, cache_dir=metrics_cache_dir)

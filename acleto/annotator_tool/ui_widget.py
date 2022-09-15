@@ -32,7 +32,7 @@ class EvaluationCallbackLogging:
                 prep_log(pd.DataFrame([eval_res]).to_string(index=False))
             )
         )
-        
+
 
 class ActiveLearnerUiWidget(VBox):
     """The main ui widget for active learning annotation.
@@ -58,7 +58,7 @@ class ActiveLearnerUiWidget(VBox):
         evaluation_callback=None,
         save_time=0,
         *args,
-        **kwargs
+        **kwargs,
     ):
         """Widget constructor.
 
@@ -103,12 +103,14 @@ class ActiveLearnerUiWidget(VBox):
         self._button_save = Button(description="Save")
         self._button_save.on_click(self._click_save)
         controls.children += (self._button_save,)
-        
-        self._button_model=Button(icon="clock-o", layout=Layout(width='30px'), disabled=True)
-        self._train_lbl = Label(value = "Model is training...")
+
+        self._button_model = Button(
+            icon="clock-o", layout=Layout(width="30px"), disabled=True
+        )
+        self._train_lbl = Label(value="Model is training...")
         self._mdl_state = HBox([self._button_model, self._train_lbl])
         self._mdl_is_training = False
-            
+
         self.children = (controls, self._make_annotator_widget(), self._mdl_state)
 
         self._save_time = save_time
@@ -120,8 +122,12 @@ class ActiveLearnerUiWidget(VBox):
         self._timer_check_next_iteration_reset = None
         self._mdl_timer = None
         self._start_model_training_timer()
-        
-        self._annotation_converter = annotation_converter if annotation_converter is not None else AnnotationConverterDefault()
+
+        self._annotation_converter = (
+            annotation_converter
+            if annotation_converter is not None
+            else AnnotationConverterDefault()
+        )
 
     def __del__(self):
         self.stop()
@@ -142,21 +148,23 @@ class ActiveLearnerUiWidget(VBox):
     def _start_save_timer(self):
         self._timer = Timer(self._save_time, self._save_on_timer)
         self._timer.start()
-    
+
     def _check_model_state(self):
-        if self._active_learner.is_busy(): 
+        if self._active_learner.is_busy():
             self._mdl_is_training = True
             self._button_model.icon = "clock-o"
-            self._train_lbl.value=f"Model is training..."
-            
+            self._train_lbl.value = f"Model is training..."
+
         else:
             if self._mdl_is_training:
                 self._button_model.icon = "check"
-                self._train_lbl.value=f"Last unlabeled pool scoring was at {datetime.now().strftime('%H:%M:%S')}"
+                self._train_lbl.value = f"Last unlabeled pool scoring was at {datetime.now().strftime('%H:%M:%S')}"
                 self._mdl_is_training = False
-    
+
     def _start_model_training_timer(self):
-        self._mdl_timer = RepeatTimer(self._check_mdl_state_time, self._check_model_state)
+        self._mdl_timer = RepeatTimer(
+            self._check_mdl_state_time, self._check_model_state
+        )
         self._mdl_timer.start()
 
     def _get_annotator_widget(self):
@@ -171,7 +179,7 @@ class ActiveLearnerUiWidget(VBox):
 
     def _make_annotator_widget(self):
         samples_to_annotate = self._active_learner.choose_samples_for_annotation()
-        
+
         return AnnotatorWidget(
             dataframe=self._X_helper.iloc[samples_to_annotate],
             answers=None,
@@ -184,19 +192,23 @@ class ActiveLearnerUiWidget(VBox):
 
     def _get_answers(self):
         answers = self._get_annotator_widget().get_answers()
-        
+
         annotated_indexes = [
             self._X_helper.index.get_loc(e)
             for e in self._get_annotator_widget().get_dataframe().index
         ]
-        
-        annotated_indexes = [annotated_indexes[i] for i in range(len(annotated_indexes)) if answers[i] is not None]
+
+        annotated_indexes = [
+            annotated_indexes[i]
+            for i in range(len(annotated_indexes))
+            if answers[i] is not None
+        ]
         answers = [answers[i] for i in range(len(answers)) if answers[i] is not None]
-        
+
         conv_answ = self._annotation_converter(annotated_indexes, answers)
-        
+
         return annotated_indexes, conv_answ
-        
+
     def _click_next_iteration(self, button):
         if self._timer_check_next_iteration_reset:
             self._timer_check_next_iteration_reset.cancel()
@@ -213,7 +225,11 @@ class ActiveLearnerUiWidget(VBox):
             self._evaluation_callback(eval_res)
 
         self._increment_iteration_num()
-        self.children = (self.children[0], self._make_annotator_widget(), self._mdl_state)
+        self.children = (
+            self.children[0],
+            self._make_annotator_widget(),
+            self._mdl_state,
+        )
         self._button_next_iter.icon = "check"
         self._button_next_iter.disabled = False
 
@@ -221,7 +237,7 @@ class ActiveLearnerUiWidget(VBox):
             self._reset_check_time, self._check_next_iteration_reset
         )
         self._timer_check_next_iteration_reset.start()
-        
+
     def _check_next_iteration_reset(self):
         self._button_next_iter.icon = ""
 
@@ -246,9 +262,9 @@ class ActiveLearnerUiWidget(VBox):
     def _save_answers(self, path):
         ind, answ = self._get_answers()
         self._active_learner.add_answers(ind, answ)
-        
+
         save_path = path
-        with open(save_path, 'w') as f:
+        with open(save_path, "w") as f:
             json.dump(self._active_learner.get_annotation(), f)
 
         logger.info(f"Saved. File path: {save_path}")

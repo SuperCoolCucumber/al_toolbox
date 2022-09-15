@@ -15,7 +15,12 @@ from .calculate_tracin_score import calculate_outlier_scores
 from .plasm import label_data, concatenate_data
 from ..al4nlp.constructors.construct_wrapper import construct_wrapper
 from ..al4nlp.pool_subsampling_strategies.random_subsampling import random_subsampling
-from ..al4nlp.utils.general import dill_dump, get_target_model_checkpoints, add_new_model_to_time_dict, json_load
+from ..al4nlp.utils.general import (
+    dill_dump,
+    get_target_model_checkpoints,
+    add_new_model_to_time_dict,
+    json_load,
+)
 from ..al4nlp.utils.transformers_dataset import TransformersDataset
 
 log = logging.getLogger(__name__)
@@ -30,12 +35,12 @@ OmegaConf.register_new_resolver(
 )
 DEFAULT_CONFIG_NAME = "cls_plasm"
 
-def pipeline_plasm(
-        data_dir: Union[str, Path],
-        annotation_or_annotation_dir: Union[str, Path, List[List[int]], np.ndarray],
-        config_name: str = None,
-        train_model: bool = True,
 
+def pipeline_plasm(
+    data_dir: Union[str, Path],
+    annotation_or_annotation_dir: Union[str, Path, List[List[int]], np.ndarray],
+    config_name: str = None,
+    train_model: bool = True,
 ) -> Tuple[Union[Dataset, TransformersDataset], "ModelWrapper"]:
     # Initialize config
     core.global_hydra.GlobalHydra.instance().clear()
@@ -44,8 +49,12 @@ def pipeline_plasm(
     # Load data
     log.info("Starting post processing")
     data_dir = Path(data_dir)
-    labeled_data = load_dataset('json', data_files=str(data_dir / 'labeled.json'), split="train")
-    unlabeled_data = load_dataset('json', data_files=str(data_dir / 'unlabeled.json'), split="train")
+    labeled_data = load_dataset(
+        "json", data_files=str(data_dir / "labeled.json"), split="train"
+    )
+    unlabeled_data = load_dataset(
+        "json", data_files=str(data_dir / "unlabeled.json"), split="train"
+    )
     # Load annotation
     if isinstance(annotation_or_annotation_dir, (list, np.ndarray)):
         annotation = annotation_or_annotation_dir
@@ -57,9 +66,15 @@ def pipeline_plasm(
     label2id = {v: k for k, v in id2label.items()}
     labeled_idx = [i for i, inst_ann in enumerate(annotation) if inst_ann is not None]
     # Remove Nones and transform labels to ids
-    annotation = [list(map(lambda tag: label2id[tag], annotation[idx])) for idx in labeled_idx]
-    annotated_data = unlabeled_data.select(labeled_idx).add_column(config.data.label_name, annotation)
-    labeled_data = concatenate_datasets([labeled_data, annotated_data], info=labeled_data.info)
+    annotation = [
+        list(map(lambda tag: label2id[tag], annotation[idx])) for idx in labeled_idx
+    ]
+    annotated_data = unlabeled_data.select(labeled_idx).add_column(
+        config.data.label_name, annotation
+    )
+    labeled_data = concatenate_datasets(
+        [labeled_data, annotated_data], info=labeled_data.info
+    )
     ### Specify pseudo-labeled data peculiarities
     # Whether to use label_smoothing for pseudo labeled data;
     # True -> use classic LS, 'natural' -> use returned probas, None -> do not use
@@ -69,7 +84,9 @@ def pipeline_plasm(
     # Uncertainty threshold
     unc_threshold = config.post_processing.get("uncertainty_threshold", None)
     # We can either filter by absolute value or by a quantile
-    unc_filt_by_quant = unc_threshold == "adaptive" or config.post_processing.get("filter_by_quantile", None)
+    unc_filt_by_quant = unc_threshold == "adaptive" or config.post_processing.get(
+        "filter_by_quantile", None
+    )
     # Whether pseudo-labeling will be performed over a subsample of the data
     use_subsample_for_pl = config.post_processing.get("use_subsample_for_pl", False)
     # Whether to use TracIn
@@ -77,14 +94,18 @@ def pipeline_plasm(
     # Whether to use TracIn
     tracin_quantile = config.post_processing.tracin.get("quantile", "adaptive")
     log.info(
-        f"Pseudo-labeling:\n" +
-        f"PL label smoothing factor: {pl_label_smoothing}\n" +
-        f"Labeled data weight: {labeled_weight}\n" +
-        f"Using TracIn: {use_tracin}\n" +
-        (f"TracIn quantile: {tracin_quantile}" if use_tracin else "") +
-        f"Uncertainty threshold: {unc_threshold}\n" +
-        (f"Uncertainty filter by quantile: {unc_filt_by_quant}\n" if unc_threshold is not None else "") +
-        f"PL using subsample: {use_subsample_for_pl}\n"
+        f"Pseudo-labeling:\n"
+        + f"PL label smoothing factor: {pl_label_smoothing}\n"
+        + f"Labeled data weight: {labeled_weight}\n"
+        + f"Using TracIn: {use_tracin}\n"
+        + (f"TracIn quantile: {tracin_quantile}" if use_tracin else "")
+        + f"Uncertainty threshold: {unc_threshold}\n"
+        + (
+            f"Uncertainty filter by quantile: {unc_filt_by_quant}\n"
+            if unc_threshold is not None
+            else ""
+        )
+        + f"PL using subsample: {use_subsample_for_pl}\n"
     )
     # Construct and train a pseudo-labeling model
     labeling_wrapper = construct_wrapper(
@@ -92,7 +113,7 @@ def pipeline_plasm(
         model_cfg=config.labeling_model,
         dev_data=None,
         labels_or_id2label=id2label,
-        name="labeling"
+        name="labeling",
     )
     log.info("Labeling wrapper constructed. Started fitting...")
     labeling_wrapper.fit(labeled_data, from_scratch=True)
@@ -102,20 +123,20 @@ def pipeline_plasm(
     if lab_model_quality is None:
         if tracin_quantile == "adaptive":
             log.warning(
-                "You set TracIn filtering share to be adaptive but no dev data was used for evaluation. " +
-                "Using value 0.1."
+                "You set TracIn filtering share to be adaptive but no dev data was used for evaluation. "
+                + "Using value 0.1."
             )
             tracin_quantile = 0.1
         if pl_label_smoothing == "adaptive":
             log.warning(
-                "You set PL label smoothing coef. to be adaptive but no dev data was used for evaluation. " +
-                "Disabling PL label smoothing."
+                "You set PL label smoothing coef. to be adaptive but no dev data was used for evaluation. "
+                + "Disabling PL label smoothing."
             )
             pl_label_smoothing = None
         if unc_threshold == "adaptive":
             log.warning(
-                "You set uncertainty threshold coef. to be adaptive but no dev data was used for evaluation. " +
-                "Disabling uncertainty threshold filtering."
+                "You set uncertainty threshold coef. to be adaptive but no dev data was used for evaluation. "
+                + "Disabling uncertainty threshold filtering."
             )
             unc_threshold = None
 
@@ -148,7 +169,7 @@ def pipeline_plasm(
         threshold=unc_threshold,
         uncertainty_filter_by_quantile=unc_filt_by_quant,
         pl_label_smoothing=pl_label_smoothing,
-        id2label=id2label
+        id2label=id2label,
     )
     log.info("Pseudo-labeling done.")
     # Concatenate the labeled-by-oracle and pseudo-labeled data
@@ -164,7 +185,7 @@ def pipeline_plasm(
         model_cfg=config.successor_model,
         dev_data=None,
         labels_or_id2label=id2label,
-        name="successor"
+        name="successor",
     )
     log.info("Successor wrapper constructed. Started fitting...")
     successor_wrapper.fit(successor_train_data)
@@ -181,24 +202,20 @@ def pipeline_plasm(
         label_name=successor_wrapper.data_config["label_name"],
     )
 
-    framework = config.framework.name
+    framework = config.framework
     framework_is_flair = framework == "flair"
     if framework_is_flair:
         from flair.datasets import DataLoader as FlairDataLoader
 
-        dataloader = FlairDataLoader(tokenized_data, batch_size=1, )
+        dataloader = FlairDataLoader(tokenized_data, batch_size=1,)
     else:
-        dataloader = DataLoader(
-            tokenized_data,
-            batch_size=1,
-            pin_memory=True,
-        )
+        dataloader = DataLoader(tokenized_data, batch_size=1, pin_memory=True,)
 
     tracin_path = data_dir / "tracin"
     tracin_path.mkdir(exist_ok=True)
     model_path = tracin_path / f"tmp_successor_model_{config.seed}"
     model_weights_paths = get_target_model_checkpoints(config, framework)
-    dataloader_path = (tracin_path / "tmp_dataloader")
+    dataloader_path = tracin_path / "tmp_dataloader"
 
     if framework_is_flair:
         # flair models don't work with dill
@@ -230,7 +247,9 @@ def pipeline_plasm(
         "final_model_fp16", False
     )
     # Modify the name to avoid overwriting time-file
-    successor_wrapper.name = successor_wrapper.name + f"_tracin_quantile_{np.round(tracin_quantile, 4)}"
+    successor_wrapper.name = (
+        successor_wrapper.name + f"_tracin_quantile_{np.round(tracin_quantile, 4)}"
+    )
     # Add initial empty fit/predict lists of the model to the time dict
     add_new_model_to_time_dict(successor_wrapper.time_dict_path, successor_wrapper.name)
     # Load key metrics of the successor model (f1-score for NER, accuracy for CLS)

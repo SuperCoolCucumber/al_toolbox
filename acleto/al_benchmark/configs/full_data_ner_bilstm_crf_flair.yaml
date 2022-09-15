@@ -12,7 +12,7 @@ cache_dir: './workdir/cache'
 cache_model_and_dataset: False
 time_dir: ./workdir/cache_${seed}_${to_string:${model.checkpoint}}
 dump_model: True
-framework: ???
+framework: 'flair'
 task: 'ner'
 offline_mode: False
 
@@ -80,6 +80,3 @@ model:
             patience: 3
             verbose: True
             min_lr: 0.0001
-
-defaults:
-  - framework: flair # 'allennlp' or 'transformers'
