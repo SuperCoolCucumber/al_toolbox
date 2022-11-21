@@ -241,7 +241,7 @@ def iteration_with_tracin(
                 return
     # Dump target model and dataloader
     model_path = Path(cache_dir) / f"tmp_target_model_{config.seed}"
-    model_weights_paths = get_target_model_checkpoints(config, framework)
+    model_weights_paths = get_target_model_checkpoints(config, "old", framework)
     dataloader_path = Path(cache_dir) / f"dataloader_{config.seed}"
 
     # Cache attributes that will be modified

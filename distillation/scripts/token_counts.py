@@ -28,7 +28,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(
         description="Token Counts for smoothing the masking probabilities in MLM (cf XLM/word2vec)"
     )
@@ -62,3 +62,7 @@ if __name__ == "__main__":
     logger.info(f"Dump to {args.token_counts_dump}")
     with open(args.token_counts_dump, "wb") as handle:
         pickle.dump(counts, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+
+if __name__ == "__main__":
+    main()

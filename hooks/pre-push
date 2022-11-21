@@ -1,0 +1,32 @@
+#!/bin/sh
+
+remote="$1"
+url="$2"
+
+branch="$(git rev-parse --abbrev-ref HEAD)"
+#echo $branch
+# run tests and calculate coverage
+if [ $branch != "dev" ]
+then
+    cd tests
+    coverage run --source ../acleto,../distillation,../domain_adaptation -m pytest ./full_tests.py --junitxml=../reports/junit/junit.xml
+    cd ..
+    if [ $? -eq 0 ]
+    then
+        # generate custom badges, so we dont't use any CI service
+        coverage xml -o reports/coverage/coverage.xml
+        genbadge tests --output-file reports/junit/tests-badge.svg
+        genbadge coverage --output-file reports/coverage/coverage-badge.svg
+        # add generated badges to the latest commit
+        git add ./reports
+        git commit --amend --no-edit
+        printf "Successful: Tests\n"
+        printf "Don't forget to make a git pull\n"
+    else
+        printf "Error: Tests\n"
+        exit 1
+    fi
+else
+    printf "This branch doesn't require tests\n"
+fi
+exit 0

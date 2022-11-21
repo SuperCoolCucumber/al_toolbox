@@ -6,8 +6,9 @@ export dataset_name="'conll2003'"
 python ./hf_dataset_to_sent.py \
  output_dir=$output_dir \
  data.dataset_name=$dataset_name \
- data.text_column_name=tokens \
- data.has_validation=True
+ data.text_name=tokens \
+ data.label_name=ner_tags \
+ data.source_task=ner \
 
 python ./run_lm.py \
  output_dir=$output_dir \

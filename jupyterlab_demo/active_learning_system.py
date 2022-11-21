@@ -13,13 +13,13 @@ from hydra import compose, initialize, core
 import matplotlib.pyplot as plt
 from collections import OrderedDict
 
-from annotator_tool.active_learner import ActiveLearner
-from annotator_tool.active_learner_async import ActiveLearnerAsync
-from annotator_tool.ui_widget import ActiveLearnerUiWidget
-from annotator_tool.annotator_widget import AnnotatorWidget
-from annotator_tool.visualizers.seq_annotation import SeqAnnotationVisualizer
-from annotator_tool.al4nlp_adaptor.al4nlp_adaptor import AdaptorAl4Nlp
-from annotator_tool.annotation_converter_bio import AnnotationConverterBio
+from acleto.annotator_tool.active_learner import ActiveLearner
+from acleto.annotator_tool.active_learner_async import ActiveLearnerAsync
+from acleto.annotator_tool.ui_widget import ActiveLearnerUiWidget
+from acleto.annotator_tool.annotator_widget import AnnotatorWidget
+from acleto.annotator_tool.visualizers.seq_annotation import SeqAnnotationVisualizer
+from acleto.annotator_tool.al4nlp_adaptor.al4nlp_adaptor import AdaptorAl4Nlp
+from acleto.annotator_tool.annotation_converter_bio import AnnotationConverterBio
 
 from datasets import load_dataset
 
@@ -38,13 +38,11 @@ from utils_data import (
 import logging
 
 _log_format = f"%(asctime)s - [%(levelname)s] - %(name)s - (%(filename)s).%(funcName)s(%(lineno)d) - %(message)s"
-_fh = logging.FileHandler("./logs/demo.log", mode='a')
+_fh = logging.FileHandler("./logs/demo.log", mode="a")
 _fh.setFormatter(logging.Formatter(_log_format))
 
 logging.basicConfig(
-    format="%(message)s",
-    level=logging.INFO,
-    handlers=[_fh],
+    format="%(message)s", level=logging.INFO, handlers=[_fh],
 )
 
 logger = logging.getLogger(__name__)
@@ -70,28 +68,26 @@ class ALSystem:
         self.active_learner = None
         self.dev_metrics = []
         self.test_metrics = []
-        
-        logger.info('\n\n\n\n================= Starting system ================')
+
+        logger.info("\n\n\n\n================= Starting system ================")
 
     def load_annotations(self, annotation_path):
         labeled_data_path = Path(annotation_path) / "annotation.json"
         logger.info(f"Trying to load: {labeled_data_path}")
-        
+
         y_labels = None
         if os.path.exists(labeled_data_path):
             with open(labeled_data_path) as f:
                 y_labels = json.load(f)
-        
+
         return y_labels
 
     def evaluate_learner(self, on_dev: bool = True, on_test: bool = True):
         if self.active_learner is not None:
-            estimator = (
-                self.active_learner._active_learn_alg.learner.estimator
-            )
+            estimator = self.active_learner._active_learn_alg.learner.estimator
             metric_names = {"cls": "test_accuracy", "ner": "test_overall_f1"}
             metric_short_names = {"cls": "Accuracy", "ner": "Entity-F1"}
-            
+
             metrics = estimator.evaluate(self.test_instances)
             target_metric_value = metrics[metric_names[self.task]]
             self.test_metrics.append(target_metric_value)
@@ -119,13 +115,11 @@ class ALSystem:
         converted = convert_y_to_dict_format(X, y)
         converted = list(map(lambda x: None if len(x) == 0 else x, converted))
         return converted
-            
+
     def predict_tags(self, text: str):
         _tokenizer = RegexpTokenizer(r"\s+", gaps=True)
         tokens = _tokenizer.tokenize(text)
-        estimator = (
-            self.active_learner._active_learn_alg.learner.estimator
-        )
+        estimator = self.active_learner._active_learn_alg.learner.estimator
         dataset = TransformersDataset(
             {"tokens": [tokens], "ner_tags": [[0] * len(tokens)]}
         )
@@ -137,7 +131,7 @@ class ALSystem:
             del m["tag"]
         displacy_input = [{"text": text, "ents": mapping, "title": None}]
         _ = displacy.render(displacy_input, style="ent", manual=True, jupyter=True)
-        
+
     def create_active_learner(self):
         # Config for al4nlp
         core.global_hydra.GlobalHydra.instance().clear()
@@ -151,26 +145,33 @@ class ALSystem:
         self.text_field_name = config.data.text_name
         self.label_name = config.data.label_name
 
-        
         # Loading data
         dataset_dir = Path(config.data.path) / config.data.dataset_name
-        labeled_dataset = load_dataset('json', data_files=str(dataset_dir / 'labeled.json'), split="train")
-        unlabeled_dataset = load_dataset('json', data_files=str(dataset_dir / 'unlabeled.json'), split="train")
-        
-        with open(dataset_dir / 'tags.json') as f:
+        labeled_dataset = load_dataset(
+            "json", data_files=str(dataset_dir / "labeled.json"), split="train"
+        )
+        unlabeled_dataset = load_dataset(
+            "json", data_files=str(dataset_dir / "unlabeled.json"), split="train"
+        )
+
+        with open(dataset_dir / "tags.json") as f:
             labels = json.load(f)
         label2id = {v: k for k, v in enumerate(labels)}
-        self.id2label = OrderedDict(list(sorted([(v, k) for k, v in label2id.items()], key=lambda e: e[1])))
-        
+        self.id2label = OrderedDict(
+            list(sorted([(v, k) for k, v in label2id.items()], key=lambda e: e[1]))
+        )
+
         X_labeled = labeled_dataset[self.text_field_name]
         y_labeled = labeled_dataset[self.label_name]
-        
+
         X_unlabeled = unlabeled_dataset[self.text_field_name]
         y_unlabeled = self.load_annotations(self.save_path)
-        
-        self.test_instances = load_dataset('json', data_files=str(dataset_dir / 'test.json'), split="train")
 
-        if self.task == 'ner':
+        self.test_instances = load_dataset(
+            "json", data_files=str(dataset_dir / "test.json"), split="train"
+        )
+
+        if self.task == "ner":
             self.X_helper, offsets = create_helper(X_unlabeled)
             self.annotation_converter = AnnotationConverterBio(offsets)
         else:
@@ -194,11 +195,21 @@ class ALSystem:
         n_instances = config.al.step_p_or_n
         if isinstance(n_instances, float):
             n_instances = round(n_instances * len(X_labeled))
-        
-        np.random.seed(1) # For starting instances in the widget to be consistent
-        al4ner_qs = AdaptorAl4Nlp(config, model, label2id, self.task, strategy_kwargs={'select_by_number_of_tokens': False})
-        
-        cl_learner = ActiveLearnerAsync if os.environ.get("USE_ASYNC", "True").lower() in {"true", "1", "t"} else ActiveLearner
+
+        np.random.seed(1)  # For starting instances in the widget to be consistent
+        al4ner_qs = AdaptorAl4Nlp(
+            config,
+            model,
+            label2id,
+            self.task,
+            strategy_kwargs={"select_by_number_of_tokens": False},
+        )
+
+        cl_learner = (
+            ActiveLearnerAsync
+            if os.environ.get("USE_ASYNC", "True").lower() in {"true", "1", "t"}
+            else ActiveLearner
+        )
         self.active_learner = cl_learner(
             active_learn_alg=al4ner_qs,
             X_labeled_dataset=X_labeled,
@@ -206,7 +217,7 @@ class ALSystem:
             X_unlabeled_dataset=X_unlabeled,
             y_unlabeled_dataset=y_unlabeled,
             rnd_start_steps=1,
-            n_instances=n_instances
+            n_instances=n_instances,
         )
 
         self.active_learner.start()
@@ -230,7 +241,6 @@ class ALSystem:
         else:
             tags = self.id2label.values()
 
-        
         self.al_widget = ActiveLearnerUiWidget(
             active_learner=self.active_learner,
             X_helper=self.X_helper,
@@ -238,9 +248,10 @@ class ALSystem:
             display_feature_table=False,
             drop_labels=[],
             visualize_columns=["texts"],
-            y_labels=None if self.task == "ner"
+            y_labels=None
+            if self.task == "ner"
             else {label: i for i, label in enumerate(tags)},
-            save_path=str(self.save_path / "annotation.json"), 
+            save_path=str(self.save_path / "annotation.json"),
             save_time=120,
             visualizer=SeqAnnotationVisualizer(tags=tags)
             if self.task == "ner"
@@ -254,7 +265,7 @@ class ALSystem:
         seq_tagger = seq_tagger.cpu()
         torch.save(seq_tagger.state_dict(), f"{self.save_path}/model.pth")
 
-    def add_custom_examples(self): # TODO: fix custom instances
+    def add_custom_examples(self):  # TODO: fix custom instances
         all_custom_examples = []
         for val, rep in self.custom_examples:
             for _ in range(rep):

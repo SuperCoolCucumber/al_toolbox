@@ -103,7 +103,8 @@ class WrapperSeq2Seq(TransformersBaseWrapper):
         is_tokenized=False,
         data_config=None,
         calculate_time=False,
-        test_mode: bool = False,
+        evaluate: bool = False,
+        use_predict_loop: bool = False,
     ):
         if data_config is None:
             data_config = self.data_config
@@ -116,7 +117,7 @@ class WrapperSeq2Seq(TransformersBaseWrapper):
                 data=data,
                 text_name=text_name,
                 label_name=label_name,
-                test_mode=test_mode,
+                test_mode=not evaluate,
             )
         assert (
             getattr(self, "trainer", None) is not None

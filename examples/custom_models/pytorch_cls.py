@@ -109,7 +109,9 @@ class TextClassifier(torch.nn.Module):
         loss = None
         if labels is not None:
             loss = self.loss_fn(logits, labels.view(-1))
-        results = {"loss": loss, "logits": logits}
+            results = {"loss": loss, "logits": logits}
+        else:
+            results = {"logits": logits}
         if output_hidden_states or self.return_embeddings:
             results["last_hidden_state"] = sent_embs
             results["hidden_states"] = [sent_embs]

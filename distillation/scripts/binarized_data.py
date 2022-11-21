@@ -41,6 +41,9 @@ def main():
         "--dataset_name", type=str, default="bookcorpus", help="Dataset name"
     )
     parser.add_argument(
+        "--cache_dir", type=str, default="~/.cache/huggingface/datasets", help="Dataset cache_dir"
+    )
+    parser.add_argument(
         "--tokenizer_type",
         type=str,
         default="bert",
@@ -77,7 +80,7 @@ def main():
 
     logger.info(f"Loading text from {args.dataset_name}")
 
-    data = load_dataset(args.dataset_name)["train"]["text"]
+    data = load_dataset(args.dataset_name, cache_dir=args.cache_dir)["train"]["text"]
 
     logger.info("Start encoding")
     logger.info(f"{len(data)} examples to process.")

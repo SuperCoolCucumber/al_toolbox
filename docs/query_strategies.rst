@@ -1,0 +1,48 @@
+.. _query_strategies:
+
+================
+Query Strategies
+================
+
+One of the key components of AL pipelines is a
+query strategy that specifies what instances are selected
+for annotation. ALToolbox provides classical
+and state-of-the-art query strategies for text
+classification, sequence tagging, and seq2seq tasks.
+Strategies implemented in our framework are summarized in the following table.
+
++-----+------------------------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+| #   | Strategy                                                                                                                                             | Citation                                                                                                |
++-----+------------------------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+| 1   | `ALPS <https://github.com/AIRI-Institute/al_toolbox/blob/main/acleto/al4nlp/query_strategies/alps.py>`_                                              | `Citation <https://aclanthology.org/2020.emnlp-main.637/>`_                                             |
++-----+------------------------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+| 2   | `BADGE <https://github.com/AIRI-Institute/al_toolbox/blob/main/acleto/al4nlp/query_strategies/badge.py>`_                                            | `Citation <https://openreview.net/forum?id=ryghZJBKPS>`_                                                |
++-----+------------------------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+| 3   | `BAIT <https://github.com/AIRI-Institute/al_toolbox/blob/main/acleto/al4nlp/query_strategies/bait.py>`_                                              | `Citation <https://proceedings.neurips.cc/paper/2021/file/4afe044911ed2c247005912512ace23b-Paper.pdf>`_ |
++-----+------------------------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+| 4   | `BALD <https://github.com/AIRI-Institute/al_toolbox/blob/main/acleto/al4nlp/query_strategies/bald.py>`_                                              | `Citation <https://arxiv.org/abs/1112.5745>`_                                                           |
++-----+------------------------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+| 5   | `BatchBALD <https://github.com/AIRI-Institute/al_toolbox/blob/main/acleto/al4nlp/query_strategies/batchbald.py>`_                                    | `Citation <https://proceedings.neurips.cc/paper/2019/file/95323660ed2124450caaac2c46b5ed90-Paper.pdf>`_ |
++-----+------------------------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+| 6   | `Breaking Ties (BT) (also Maximum Margin) <https://github.com/AIRI-Institute/al_toolbox/blob/main/acleto/al4nlp/query_strategies/breaking_ties.py>`_ | `Citation <https://ieeexplore.ieee.org/document/1334570>`_                                              |
++-----+------------------------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+| 7   | `Contrastive Active Learning (CAL) <https://github.com/AIRI-Institute/al_toolbox/blob/main/acleto/al4nlp/query_strategies/cal.py)>`_                 | `Citation <https://aclanthology.org/2021.emnlp-main.51/>`_                                              |
++-----+------------------------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+| 8   | `Cluster Margin <https://github.com/AIRI-Institute/al_toolbox/blob/main/acleto/al4nlp/query_strategies/cluster_margin.py>`_                          | `Citation <https://arxiv.org/abs/2107.14263>`_                                                          |
++-----+------------------------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+| 9   | `Coreset <https://github.com/AIRI-Institute/al_toolbox/blob/main/acleto/al4nlp/query_strategies/coreset.py>`_                                        | `Citation <https://openreview.net/forum?id=H1aIuk-RW>`_                                                 |
++-----+------------------------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+| 10  | `Expected Gradient Length (EGL) <https://github.com/AIRI-Institute/al_toolbox/blob/main/acleto/al4nlp/query_strategies/egl.py>`_                     | `Citation <https://burrsettles.com/pub/settles.nips08.pdf>`_                                            |
++-----+------------------------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+| 11  | `Embeddings KM <https://github.com/AIRI-Institute/al_toolbox/blob/main/acleto/al4nlp/query_strategies/embeddings_km.py>`_                            | `Citation <https://aclanthology.org/2020.emnlp-main.637/>`_                                             |
++-----+------------------------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+| 12  | `Entropy <https://github.com/AIRI-Institute/al_toolbox/blob/main/acleto/al4nlp/query_strategies/entropy.py>`_                                        | `Citation <https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.77.9855&rep=rep1&type=pdf>`_       |
++-----+------------------------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+| 13  | `Least Confidence (LC) <https://github.com/AIRI-Institute/al_toolbox/blob/main/acleto/al4nlp/query_strategies/lc.py>`_                               | `Citation <https://arxiv.org/abs/cmp-lg/9407020>`_                                                      |
++-----+------------------------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+| 14  | `Mahalanobis Distance <https://github.com/AIRI-Institute/al_toolbox/blob/main/acleto/al4nlp/query_strategies/mahalanobis.py>`_                       | `Citation <https://proceedings.neurips.cc/paper/2018/file/abdeb6f575ac5c6676b747bca8d09cc2-Paper.pdf>`_ |
++-----+------------------------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+| 15  | `Maximum Normalized Log-Probability (MNLP) <https://github.com/AIRI-Institute/al_toolbox/blob/main/acleto/al4nlp/query_strategies/mnlp.py>`_         | `Citation <https://aclanthology.org/W17-2630/>`_                                                        |
++-----+------------------------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+| 16  | `Random (No AL) <https://github.com/AIRI-Institute/al_toolbox/blob/main/acleto/al4nlp/query_strategies/random_sampling.py>`_                         | \-                                                                                                      |
++-----+------------------------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+

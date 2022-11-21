@@ -10,6 +10,7 @@ from omegaconf import OmegaConf
 from acleto.al4nlp.utils.embeddings import load_embeddings_if_necessary
 from acleto.al4nlp.utils.general import log_config
 from acleto.al4nlp.utils.main_decorator import main_decorator
+from acleto.al4nlp.utils.restore_queries import restore_queries
 
 log = logging.getLogger()
 
@@ -60,50 +61,19 @@ def run_active_learning(config, work_dir):
     id_first_iteration = 0
 
     try:
+        from_checkpoint = config.get("from_checkpoint", None)
         if (
-            config.get("from_checkpoint", None) is not None
-            and config["from_checkpoint"]["path"] is not None
+            from_checkpoint is not None
+            and from_checkpoint["path"] is not None
         ):
-
-            from datasets import concatenate_datasets
-            import numpy as np
-
-            work_dir = Path(config["from_checkpoint"]["path"])
-            last_iter = config["from_checkpoint"].get("last_iteration", None)
-
-            text_column = config.data.text_name
-            ids_paths = sorted(
-                [x for x in os.listdir(work_dir) if x.startswith("ids_data_query_")]
+            work_dir = Path(from_checkpoint["path"])
+            initial_data, unlabeled_data = restore_queries(
+                from_checkpoint,
+                train_instances,
+                initial_data,
+                unlabeled_data,
+                config.data.text_name
             )
-            if last_iter is not None:
-                ids_paths = ids_paths[: last_iter + 1]
-            id_first_iteration = len(ids_paths) - 1
-            log.info(
-                f"Resuming active learning from iteration {id_first_iteration + 1}..."
-            )
-
-            for i in range(len(ids_paths)):
-                ids_data_query_path = f"ids_data_query_{i}.json"
-                with open(work_dir / ids_data_query_path) as f:
-                    query_ids = json.load(f)
-                if ids_data_query_path == "ids_data_query_0.json":
-                    query = train_instances.select(query_ids)
-                    assert (
-                        query[text_column] == initial_data[text_column]
-                    ), "Initial iteration results differ!"
-                else:
-                    query = unlabeled_data.select(query_ids)
-                    if isinstance(initial_data, TransformersDataset):
-                        initial_data.add(query)
-                    else:
-                        initial_data = concatenate_datasets([initial_data, query])
-                    unlabeled_data = unlabeled_data.select(
-                        np.setdiff1d(range(len(unlabeled_data)), query_ids)
-                    )
-            log.info(
-                f"Query ids up to iteration {id_first_iteration} inclusive successfully loaded."
-            )
-
         else:
             log.info("Starting active learning...")
 

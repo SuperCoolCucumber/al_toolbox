@@ -16,6 +16,7 @@ from transformers import (
     EarlyStoppingCallback,
     TrainerCallback,
     PrinterCallback,
+    DataCollatorForSeq2Seq
 )
 
 from .trainer_for_pseudo_labeled import TrainerForPseudoLabeled
@@ -207,6 +208,8 @@ class TransformersBaseWrapper:  # TODO: add interface
         data_collator = self.get_data_collator_class()
         if data_collator is not None:
             data_collator_kwargs = dict(tokenizer=self.tokenizer, padding="longest")
+            if data_collator == DataCollatorForSeq2Seq:
+                data_collator_kwargs["model"] = self.model
             data_collator = data_collator(**data_collator_kwargs)
 
         gradient_accumulation_steps = (

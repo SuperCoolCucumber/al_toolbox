@@ -80,9 +80,13 @@ def add_new_model_to_time_dict(time_dict_path, new_model_name):
         json.dump(time_dict, f)
 
 
-def get_target_model_checkpoints(config, framework="transformers"):
+def get_target_model_checkpoints(config, version="new", framework="transformers"):
+    if version == "new":
+        model_cfg = config.successor_model
+    else:
+        model_cfg = config.target_model
     checkpoints_path = Path(
-        config.successor_model.training.trainer_args.serialization_dir
+        model_cfg.training.trainer_args.serialization_dir
     )
     model_name = "pytorch_model.pt" if framework == "flair" else "pytorch_model.bin"
     models_paths = [
