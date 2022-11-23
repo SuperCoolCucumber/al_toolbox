@@ -59,8 +59,8 @@ def pair_bleu(references, prediction):
     there are no common higher order n-grams between the
     texts.
     """
-    tok_ref = [word_tokenize(s) for s in sent_tokenize(references)]
-    tok_pred = [word_tokenize(s) for s in sent_tokenize(prediction)]
+    tok_ref = [word_tokenize(sent) for sent in sent_tokenize(references)]
+    tok_pred = [word_tokenize(sent) for sent in sent_tokenize(prediction)]
     score = 0
     for c_cent in tok_pred:
         try:
@@ -108,3 +108,19 @@ def _get_aggregation(aggregate):
     elif aggregate == False:
         return None
     return aggregate
+
+def calculate_additional_hf_metrics(additional_metrics, decoded_labels, decoded_preds):
+    result = {}
+    for add_metric in additional_metrics:
+        if add_metric.name != "sacrebleu":
+            add_metrics_result = add_metric.compute(
+                predictions=decoded_preds, references=decoded_labels
+            )
+        else:
+            add_metrics_result = add_metric.compute(
+                predictions=decoded_preds,
+                references=[[lab] for lab in decoded_labels],
+            )
+            add_metrics_result["sacrebleu"] = add_metrics_result.pop("score")
+        result.update(add_metrics_result)
+    return result

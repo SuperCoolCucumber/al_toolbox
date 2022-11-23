@@ -110,7 +110,7 @@ def calculate_bartscore(
     predictions, labels, texts, scorer=None, batch_size=4, **bartscorer_init_params
 ) -> Dict[str, np.ndarray]:
 
-    decoded_texts = ["\n".join(sent_tokenize(text.strip())) for text in texts]
+    # decoded_texts = ["\n".join(sent_tokenize(text.strip())) for text in texts]
     start_time = time.time()
     if scorer is None:
         scorer = BARTScorer(**bartscorer_init_params)
@@ -118,7 +118,7 @@ def calculate_bartscore(
         scorer,
         preds=predictions,
         refs=labels,
-        texts=decoded_texts,
+        texts=texts,
         batch_size=batch_size,
         aggregate=True,
     )
@@ -146,7 +146,7 @@ def get_bart_scores(scorer, preds, refs, texts, batch_size=4, aggregate=True):
 
 def prepare_data_for_abssum_metrics(
     predictions: List[str], labels: List[str], texts: Union[List[str], None] = None
-) -> Tuple[List[str], List[str], np.ndarray, np.ndarray]:
+) -> Tuple[List[str], List[str], np.ndarray, np.ndarray, Dict[str, List[str]]]:
     predictions = ["\n".join(sent_tokenize(pred)) for pred in predictions]
     labels = ["\n".join(sent_tokenize(label)) for label in labels]
     # Calculate zero- and uni-word summaries (that must be excluded from calculating

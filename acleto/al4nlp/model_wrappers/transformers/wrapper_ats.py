@@ -10,7 +10,7 @@ from torch import cuda
 
 from .transformers_base_wrapper import TransformersBaseWrapper
 from .wrapper_seq2seq import WrapperSeq2Seq
-from ...utils.seq2seq_metrics import decode_all, calculate_bleu
+from ...utils.seq2seq_metrics import decode_all, calculate_bleu, calculate_additional_hf_metrics
 from ...utils.summarization_metrics import (
     prepare_data_for_abssum_metrics,
     calculate_rouge,
@@ -118,7 +118,7 @@ class WrapperAts(WrapperSeq2Seq, TransformersBaseWrapper):
                     scorer = BARTScorer(**bartscorer_init_params)
                     # probable error with texts
                     bart_scores = calculate_bartscore(
-                        predictions, labels, decoded_texts, scorer
+                        decoded_preds, decoded_labels, decoded_texts, scorer
                     )
                     del scorer
                     cuda.empty_cache()
@@ -126,23 +126,13 @@ class WrapperAts(WrapperSeq2Seq, TransformersBaseWrapper):
                     # SummaC-ZC score
                     scorer = SummaCZS(granularity="sentence", model_name="vitc")
                     summac_scores = calculate_summac_score(
-                        predictions, labels, decoded_texts, scorer
+                        decoded_preds, decoded_labels, decoded_texts, scorer
                     )
                     result.update(bart_scores)
                     result.update(summac_scores)
 
-            for add_metric in additional_metrics:
-                if add_metric.name != "sacrebleu":
-                    add_metrics_result = add_metric.compute(
-                        predictions=decoded_preds, references=decoded_labels
-                    )
-                else:
-                    add_metrics_result = add_metric.compute(
-                        predictions=decoded_preds,
-                        references=[[lab] for lab in decoded_labels],
-                    )
-                    add_metrics_result["sacrebleu"] = add_metrics_result.pop("score")
-                result.update(add_metrics_result)
+            add_result = calculate_additional_hf_metrics(additional_metrics, decoded_labels, decoded_preds)
+            result.update(add_result)
 
             return result
 

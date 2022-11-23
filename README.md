@@ -4,6 +4,9 @@
  -->
 # 🛠 ALToolbox 
 <!-- **🛠 ALToolbox 🛠**:  -->
+
+[![PyPI version](https://img.shields.io/pypi/v/acleto.svg)](https://pypi.python.org/pypi/acleto/) [![License](https://img.shields.io/github/license/AIRI-Institute/al_toolbox)](./LICENSE) [![Documentation Status](https://readthedocs.org/projects/al-toolbox/badge/?version=latest)](https://al-toolbox.readthedocs.io/en/latest/?badge=latest) [![Tests](reports/junit/tests-badge.svg)](reports/junit/tests-badge.svg)
+
 ALToolbox is a framework for practical active learning in NLP.
 <hr>
 
@@ -50,32 +53,32 @@ For quick start, please see the examples of launching an active learning annotat
 
 ### 1. Query Strategies 
 
-| #   | Strategy                                                                                               | Citation                                                                                             |
-|-----|--------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------|
-| 1   | [ALPS](al4nlp/query_strategies/alps_sampling.py)                                                       | [Citation](https://aclanthology.org/2020.emnlp-main.637/) | 
-| 2   | [BADGE](al4nlp/query_strategies/badge_sampling.py)                                            | [Citation](https://openreview.net/forum?id=ryghZJBKPS) | 
-| 3   | [BAIT](al4nlp/query_strategies/bait_sampling.py)                                              | [Citation](https://proceedings.neurips.cc/paper/2021/file/4afe044911ed2c247005912512ace23b-Paper.pdf) | 
-| 4   | [BALD](al4nlp/query_strategies/bald_sampling.py)                                              | [Citation](https://arxiv.org/abs/1112.5745) | 
-| 5   | [BatchBALD](al4nlp/query_strategies/batchbald_sampling.py)                                    | [Citation](https://proceedings.neurips.cc/paper/2019/file/95323660ed2124450caaac2c46b5ed90-Paper.pdf) | 
-| 6   | [Breaking Ties (BT) (also Maximum Margin)](al4nlp/query_strategies/breaking_ties_sampling.py) | [Citation](https://ieeexplore.ieee.org/document/1334570) | 
-| 7   | [Contrastive Active Learning (CAL)](al4nlp/query_strategies/cal_sampling.py)                  | [Citation](https://aclanthology.org/2021.emnlp-main.51/) | 
-| 8   | [Cluster Margin](al4nlp/query_strategies/cluster_margin_sampling.py)                          | [Citation](https://arxiv.org/abs/2107.14263) | 
-| 9   | [Coreset](al4nlp/query_strategies/coreset_sampling.py)                                        | [Citation](https://openreview.net/forum?id=H1aIuk-RW) | 
-| 10  | [Expected Gradient Length (EGL)](al4nlp/query_strategies/egl_sampling.py)                     | [Citation](https://openreview.net/forum?id=ryghZJBKPS (?)) | 
-| 11  | [Embeddings KM](al4nlp/query_strategies/embeddings_km_sampling.py)                            | [Citation](https://aclanthology.org/2020.emnlp-main.637/) | 
-| 12  | [Entropy](al4nlp/query_strategies/entropy_sampling.py)                                        | [Citation](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.77.9855&rep=rep1&type=pdf) | 
-| 13  | [Least Confidence (LC)](al4nlp/query_strategies/lc_sampling.py)                               | [Citation](https://arxiv.org/abs/cmp-lg/9407020) | 
-| 14  | [Mahalanobis Distance](al4nlp/query_strategies/mahalanobis_sampling.py)                       | [Citation](https://proceedings.neurips.cc/paper/2018/file/abdeb6f575ac5c6676b747bca8d09cc2-Paper.pdf) | 
-| 15  | [Maximum Normalized Log-Probability (MNLP)](al4nlp/query_strategies/mnlp_sampling.py)         | [Citation](https://aclanthology.org/W17-2630/) | 
-| 16  | [Random (No AL)](al4nlp/query_strategies/random_sampling.py)                                  | -                                                                                                    |
+| #   | Strategy                                                                                             | Citation                                                                                             |
+|-----|------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------|
+| 1   | [ALPS](acleto/al4nlp/query_strategies/alps_sampling.py)                                              | [Citation](https://aclanthology.org/2020.emnlp-main.637/) | 
+| 2   | [BADGE](acleto/al4nlp/query_strategies/badge_sampling.py)                                            | [Citation](https://openreview.net/forum?id=ryghZJBKPS) | 
+| 3   | [BAIT](acleto/al4nlp/query_strategies/bait_sampling.py)                                              | [Citation](https://proceedings.neurips.cc/paper/2021/file/4afe044911ed2c247005912512ace23b-Paper.pdf) | 
+| 4   | [BALD](acleto/al4nlp/query_strategies/bald_sampling.py)                                              | [Citation](https://arxiv.org/abs/1112.5745) | 
+| 5   | [BatchBALD](acleto/al4nlp/query_strategies/batchbald_sampling.py)                                    | [Citation](https://proceedings.neurips.cc/paper/2019/file/95323660ed2124450caaac2c46b5ed90-Paper.pdf) | 
+| 6   | [Breaking Ties (BT) (also Maximum Margin)](acleto/al4nlp/query_strategies/breaking_ties_sampling.py) | [Citation](https://ieeexplore.ieee.org/document/1334570) | 
+| 7   | [Contrastive Active Learning (CAL)](acleto/al4nlp/query_strategies/cal_sampling.py)                  | [Citation](https://aclanthology.org/2021.emnlp-main.51/) | 
+| 8   | [Cluster Margin](acleto/al4nlp/query_strategies/cluster_margin_sampling.py)                          | [Citation](https://arxiv.org/abs/2107.14263) | 
+| 9   | [Coreset](acleto/al4nlp/query_strategies/coreset_sampling.py)                                        | [Citation](https://openreview.net/forum?id=H1aIuk-RW) | 
+| 10  | [Expected Gradient Length (EGL)](acleto/al4nlp/query_strategies/egl_sampling.py)                     | [Citation](https://openreview.net/forum?id=ryghZJBKPS (?)) | 
+| 11  | [Embeddings KM](acleto/al4nlp/query_strategies/embeddings_km_sampling.py)                            | [Citation](https://aclanthology.org/2020.emnlp-main.637/) | 
+| 12  | [Entropy](acleto/al4nlp/query_strategies/entropy_sampling.py)                                        | [Citation](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.77.9855&rep=rep1&type=pdf) | 
+| 13  | [Least Confidence (LC)](acleto/al4nlp/query_strategies/lc_sampling.py)                               | [Citation](https://arxiv.org/abs/cmp-lg/9407020) | 
+| 14  | [Mahalanobis Distance](acleto/al4nlp/query_strategies/mahalanobis_sampling.py)                       | [Citation](https://proceedings.neurips.cc/paper/2018/file/abdeb6f575ac5c6676b747bca8d09cc2-Paper.pdf) | 
+| 15  | [Maximum Normalized Log-Probability (MNLP)](acleto/al4nlp/query_strategies/mnlp_sampling.py)         | [Citation](https://aclanthology.org/W17-2630/) | 
+| 16  | [Random (No AL)](acleto/al4nlp/query_strategies/random_sampling.py)                                  | -                                                                                                    |
 
 ### 3. Unlabeled Pool Subsampling Strategies
 
-| #   | Strategy                                                                    | Citation                                                     |
-|-----|-----------------------------------------------------------------------------|--------------------------------------------------------------|
-| 1   | [UPS](al4nlp/pool_subsampling_strategies/ups_subsampling.py)       | [Citation](https://aclanthology.org/2022.findings-naacl.90/) |
-| 2   | [Naïve](al4nlp/pool_subsampling_strategies/naive_subsampling.py)   | [Citation](https://aclanthology.org/2022.findings-naacl.90/) | 
-| 3   | [Random](al4nlp/pool_subsampling_strategies/random_subsampling.py) | -                                                            |
+| #   | Strategy                                                                 | Citation                                                     |
+|-----|--------------------------------------------------------------------------|--------------------------------------------------------------|
+| 1   | [UPS](acleto/al4nlp/pool_subsampling_strategies/ups_subsampling.py)      | [Citation](https://aclanthology.org/2022.findings-naacl.90/) |
+| 2   | [Naïve](acleto/al4nlp/pool_subsampling_strategies/naive_subsampling.py)  | [Citation](https://aclanthology.org/2022.findings-naacl.90/) | 
+| 3   | [Random](acleto/al4nlp/pool_subsampling_strategies/random_subsampling.py) | -                                                            |
 
 
 ### 4. Pipelines for postprocessing of annotated data and preparation of acquisition models

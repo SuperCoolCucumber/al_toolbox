@@ -91,10 +91,3 @@ al:
         distance: 'cosine'
         mahalanobis_triplet_lamb: 0.25
         mahalanobis_batched: False
-
-
-#al_strategy: ???
-
-defaults:
-  - framework: transformers # 'transformers' or 'flair' or 'pytorch'
-#  - al_strategy: lc # lc, random, mahalanobis, nuq, ddu, logits_lc

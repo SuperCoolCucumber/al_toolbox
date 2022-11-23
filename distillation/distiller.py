@@ -522,11 +522,11 @@ class Distiller:
         assert t_logits_slct.size() == s_logits_slct.size()
 
         loss_ce = (
-                self.ce_loss_fct(
+            self.ce_loss_fct(
                 nn.functional.log_softmax(s_logits_slct / self.temperature, dim=-1),
                 nn.functional.softmax(t_logits_slct / self.temperature, dim=-1),
             )
-                * self.temperature ** 2
+            * self.temperature ** 2
         )
         loss = self.alpha_ce * loss_ce
 

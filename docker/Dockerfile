@@ -141,8 +141,9 @@ RUN set -x && \
         "${PYTHON_SPECIFIER}" \
         'mamba' \
         'notebook' \
-        'jupyterhub' \
-        'jupyterlab' && \
+        'jupyterhub==2.3.1' \
+        'jupyter_server==1.18.1' \
+        'jupyterlab==3.4.4' && \
     rm micromamba && \
     # Pin major.minor version of python
     mamba list python | grep '^python ' | tr -s ' ' | cut -d ' ' -f 1,2 >> "${CONDA_DIR}/conda-meta/pinned" && \
@@ -267,7 +268,7 @@ RUN mamba install --quiet --yes \
     'dill' \
     'h5py' \
     'ipympl'\
-    'ipywidgets' \
+    'ipywidgets==7.7.1' \
     'matplotlib-base' \
     'numba' \
     'numexpr' \
@@ -279,7 +280,8 @@ RUN mamba install --quiet --yes \
     'scipy' \
     'seaborn' \
     'statsmodels' \
-    'widgetsnbextension'\
+    'widgetsnbextension==3.6.1' \
+    'jupyterlab_widgets==1.1.1' \
     'xlrd' && \
     mamba clean --all -f -y && \
     fix-permissions "${CONDA_DIR}" && \
@@ -453,7 +455,7 @@ RUN chmod 777 ${HOME}/acleto/jupyterlab_demo/cache.sh && ${HOME}/acleto/jupyterl
 RUN rm ${HOME}/acleto/jupyterlab_demo/cache.sh
 RUN chown -R "${NB_UID}:${NB_GID}" ${HOME}/acleto/jupyterlab_demo/cache
 RUN chown -R "${NB_UID}:${NB_GID}" ${HOME}/.cache/huggingface
-#RUN cd ${HOME}/acleto && ./init.sh
+RUN cd ${HOME}/acleto && ./init.sh
 
 RUN jupyter nbextension install --py --symlink --sys-prefix text_selector
 RUN jupyter nbextension enable --py --sys-prefix text_selector

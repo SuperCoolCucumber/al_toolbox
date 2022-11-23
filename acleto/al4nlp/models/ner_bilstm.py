@@ -101,7 +101,9 @@ class BilstmTagger(torch.nn.Module):
             loss = self.loss_fn(
                 logits.reshape(-1, logits.shape[-1]), labels.reshape(-1)
             )
-        results = {"loss": loss, "logits": logits}
+            results = {"loss": loss, "logits": logits}
+        else:
+            results = {"logits": logits}
         if output_hidden_states or self.return_embeddings:
             results["last_hidden_state"] = x_body
             results["hidden_states"] = [x_body]

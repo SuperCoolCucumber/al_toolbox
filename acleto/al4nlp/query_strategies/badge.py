@@ -6,10 +6,10 @@ from datasets.arrow_dataset import Dataset
 from scipy import stats
 from sklearn.metrics import pairwise_distances
 
-from .al_strategy_utils import (
-    take_idx,
-    calculate_badge_scores,
-)
+import torch
+from torch import nn
+
+from ..utils.get_embeddings import get_grad_embeddings
 from ..utils.transformers_dataset import TransformersDataset
 
 log = logging.getLogger()
@@ -19,7 +19,6 @@ def badge(
     model,
     X_pool: Union[Dataset, TransformersDataset],
     n_instances: int,
-    X_train: Union[Dataset, TransformersDataset],
     **badge_kwargs,
 ):
     """
@@ -45,7 +44,7 @@ def badge(
 
     query_idx = np.array(init_centers(vectors, k=n_instances))
 
-    query = take_idx(X_pool, query_idx)
+    query = X_pool.select(query_idx)
 
     # Uncertainty estimates are not defined for BADGE
     uncertainty_estimates = np.zeros(len(X_pool))
@@ -80,3 +79,43 @@ def init_centers(x, k):
         inds_all.append(ind)
         cent += 1
     return inds_all
+
+def calculate_badge_scores(
+    model_wrapper,
+    data_test,
+    logits,
+    use_activation: bool = False,
+    use_spectralnorm: bool = False,
+    data_is_tokenized=False,
+    data_config=None,
+    batch_size=100,
+    to_numpy=True,
+):
+    data_config = data_config if data_config is not None else model_wrapper.data_config
+    kwargs = dict(
+        # General
+        model=model_wrapper.model,
+        prepare_model=True,
+        batch_size=batch_size,
+        to_numpy=False,
+        data_is_tokenized=data_is_tokenized,
+        tokenizer=model_wrapper.tokenizer,
+        task=model_wrapper.task,
+        text_name=data_config["text_name"],
+        label_name=data_config["label_name"],
+    )
+    """Return the loss gradient with respect to the penultimate layer for BADGE"""
+    pooled_output = get_grad_embeddings(dataloader_or_data=data_test, **kwargs).to(
+        model_wrapper.model.device
+    )
+    batch_size, num_classes = logits.shape
+    probs = nn.functional.softmax(
+        torch.Tensor(logits).to(model_wrapper.model.device), dim=-1
+    )
+    preds = probs.argmax(dim=1)
+    preds_oh = nn.functional.one_hot(preds, num_classes=num_classes)
+    preds_oh = preds_oh.type(torch.cuda.FloatTensor)
+    scales = probs - preds_oh
+    grads_3d = torch.einsum("bi,bj->bij", scales, pooled_output)
+    grads = grads_3d.view(batch_size, -1)
+    return grads

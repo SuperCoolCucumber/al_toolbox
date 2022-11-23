@@ -157,7 +157,7 @@ def plot_with_confidence_interval(
     # Remove potentially redundant columns
     for column in ["id_experiment", "deleted", "seed"]:
         if (column in df) and (column not in columns_to_group_by):
-            df.drop(columns=column, inplace=True)
+            df = df.drop(columns=column)
     # Group by the specified columns
     groupby = df.groupby(list(columns_to_group_by))
     df_mean = groupby.mean().T

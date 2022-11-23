@@ -80,6 +80,3 @@ al:
     evaluate_query: True
     iters_to_recalc_scores: [0, 1, 4, 8]
     strategy_kwargs:
-
-# defaults:
-#   - framework: transformers # 'allennlp' or 'transformers'

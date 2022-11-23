@@ -25,6 +25,7 @@ def visualize_experiments(
     metric_file_names: Union[
         List[str], Tuple[str]
     ] = None,  # if wanna use distinct files with metrics
+    exclude_cache_from_dir: bool = True,  # if wanna exclude directory from search if it has "cache" in its name
     display_df_head: bool = False,  # whether we want to display the head of the `df` with experiments
     query_condition: str = None,  # query condition for observations from `df` which we want to plot
     columns_to_group_by=(
@@ -55,6 +56,7 @@ def visualize_experiments(
         log_errors=log_errors,
         metric_name=metric_name,
         metric_file_names=metric_file_names,
+        exclude_cache_from_dir=exclude_cache_from_dir,
     )
     if display_df_head:
         display(df.head())
@@ -88,6 +90,6 @@ def plot_query(
     if query_condition is not None:
         df = df.query(query_condition)
     else:
-        df = df.copy(deep=True)
+        df = df.copy()
     fig = plot_with_confidence_interval(df, **plot_with_confidence_interval_kwargs)
     return fig

@@ -83,9 +83,8 @@ def bald(
     if use_subsample:
         # Update query_idx since now it corresponds to the sampled set
         query_idx = subsample_indices[query_idx]
-
-    uncertainty_estimates = assign_ue_scores_for_unlabeled_data(
-        len(X_pool), subsample_indices, uncertainty_estimates
-    )
+        uncertainty_estimates = assign_ue_scores_for_unlabeled_data(
+            len(X_pool), subsample_indices, uncertainty_estimates
+        )
 
     return query_idx, query, uncertainty_estimates

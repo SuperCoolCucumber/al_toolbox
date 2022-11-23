@@ -17,7 +17,7 @@ offline_mode: False
 
 data:
     dataset_name: 'conll2003'
-    path: '../data/'
+    path: 'datasets'
     tag_index: 2
     text_name: 'tokens'
     label_name: 'ner_tags'

@@ -65,12 +65,12 @@ def convert_y_to_dict_format(X, y):
     return dict_annots
 
 
-def create_helper(X_train): # TODO: UPD helper
+def create_helper(X_train):  # TODO: UPD helper
     all_offsets = list()
     all_texts = list()
     for i in range(len(X_train)):
         tokenized_text = X_train[i]
-        
+
         offsets = []
         text = ""
         curr_offset = 0
@@ -78,11 +78,14 @@ def create_helper(X_train): # TODO: UPD helper
             offsets.append(curr_offset)
             text += word + " "
             curr_offset += len(word) + 1
-        
+
         all_offsets.append(offsets)
         all_texts.append(text)
-        
-    return pd.DataFrame(all_texts, columns=["text"], index=list(range(len(all_texts)))), all_offsets
+
+    return (
+        pd.DataFrame(all_texts, columns=["text"], index=list(range(len(all_texts)))),
+        all_offsets,
+    )
 
 
 def format_entities(sentence, tags):

@@ -76,16 +76,3 @@ al:
     iters_to_recalc_scores: [0, 1, 4, 8]
     evaluate_query: True
     strategy_kwargs:
-        mahalanobis_use_da: False
-        mahalanobis_use_v2: False
-        mc_iterations: 10
-        max_num_samples: 1_000
-        only_head_dropout: False
-        use_stable_dropout: True
-        n_clusters: 12000
-        instances_multiplier: 1.25
-        random_query: True
-        fast: False
-        distance: 'cosine'
-        mahalanobis_triplet_lamb: 0.25
-        mahalanobis_batched: False

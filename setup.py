@@ -46,6 +46,7 @@ requirements = [
     "pybind11==2.10.0",
     "ipykernel==6.15.1",
     "small-text",
+    "genbadge",
 ]
 
 os.system("chmod a+x init.sh examples/*")
@@ -53,7 +54,7 @@ os.system("chmod a+x init.sh examples/*")
 setup(
     name="acleto",
     packages=find_packages(include=["acleto*"]),
-    version="0.0.5",
+    version="0.0.3",
     description="A Library for active learning. Supports text classification and sequence tagging tasks.",
     author="Tsvigun A., Sanochkin L., Kuzmin G., Larionov D., and Dr Shelmanov A.",
     license="MIT",
@@ -61,6 +62,8 @@ setup(
     long_description_content_type="text/markdown",
     keywords="NLP active AL deep learning transformer pytorch PLASM UPS",
     install_requires=requirements,
+    extras_require={"small-text": ["small-text"], "modAL": ["modAL"],},
+    include_package_data=True,
     setup_requires=["pytest-runner"],
     tests_require=["pytest==7.1.2"],
     test_suite="tests",

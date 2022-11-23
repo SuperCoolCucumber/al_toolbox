@@ -7,7 +7,7 @@ from typing import Union, Tuple, List
 import numpy as np
 import transformers.utils.logging
 from datasets import Dataset, load_dataset, concatenate_datasets
-from hydra import compose, initialize, core
+from hydra import compose, initialize_config_dir, core
 from omegaconf import OmegaConf
 from torch.utils.data import DataLoader
 
@@ -40,11 +40,13 @@ def pipeline_plasm(
     data_dir: Union[str, Path],
     annotation_or_annotation_dir: Union[str, Path, List[List[int]], np.ndarray],
     config_name: str = None,
+    config_dir: str = None,
     train_model: bool = True,
 ) -> Tuple[Union[Dataset, TransformersDataset], "ModelWrapper"]:
     # Initialize config
     core.global_hydra.GlobalHydra.instance().clear()
-    initialize(config_path="../jupyterlab_demo/configs/")
+    default_config_dir = os.path.join(os.getcwd(), "../jupyterlab_demo/configs/")
+    initialize_config_dir(config_dir=config_dir or default_config_dir)
     config = compose(config_name=config_name or DEFAULT_CONFIG_NAME)
     # Load data
     log.info("Starting post processing")
@@ -214,7 +216,7 @@ def pipeline_plasm(
     tracin_path = data_dir / "tracin"
     tracin_path.mkdir(exist_ok=True)
     model_path = tracin_path / f"tmp_successor_model_{config.seed}"
-    model_weights_paths = get_target_model_checkpoints(config, framework)
+    model_weights_paths = get_target_model_checkpoints(config, framework=framework)
     dataloader_path = tracin_path / "tmp_dataloader"
 
     if framework_is_flair:

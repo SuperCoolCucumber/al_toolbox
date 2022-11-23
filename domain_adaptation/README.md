@@ -13,8 +13,9 @@ export dataset_name="'conll2003'"
 python ./hf_dataset_to_sent.py \
  output_dir=$output_dir \
  data.dataset_name=$dataset_name \
- data.text_column_name=tokens \
- data.has_validation=True
+ data.text_name=tokens \
+ data.label_name=ner_tags \
+ data.source_task=ner \
 
 python ./run_lm.py \
  output_dir=$output_dir \
@@ -24,6 +25,7 @@ python ./run_lm.py \
  gradient_accumulation_steps=4 \
  gpus=[0] \
  n_gpu=1 \
+ max_steps=200
 ```
 One should also look for train script examples in train.sh.
 After domain adaptation is finished, just replace model.checkpoint entry in a config file for active learning with the path to the adapted model.

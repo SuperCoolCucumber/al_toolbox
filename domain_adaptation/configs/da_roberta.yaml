@@ -8,10 +8,15 @@ hydra:
 
 data:
     dataset_name: 'ag_news'
-    data_path: 'datasets'  # or path to data if it
-    text_column_name: 'text'
-    has_validation: False
-    val_size: 0.2
+    path: 'datasets'  # or path to data if it
+    text_name: 'text' #text_column_name: 'text'
+    label_name: 'label'
+    labels_to_remove:
+    train_size_split: 0.8
+    tag_index: 2
+    from_csv:
+    source_task: 'cls'
+    seed: ${seed}
 
 train_data_file: /home/jovyan/active_learning/active_learning/domain_adaptation/train_${data.dataset_name}.txt
 eval_data_file: /home/jovyan/active_learning/active_learning/domain_adaptation/dev_${data.dataset_name}.txt

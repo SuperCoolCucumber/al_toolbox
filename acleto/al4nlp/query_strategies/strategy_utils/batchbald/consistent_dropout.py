@@ -1,4 +1,5 @@
 import types
+from functools import partial
 
 import torch
 
@@ -70,6 +71,7 @@ class _ConsistentMCDropout(torch.nn.Module):
         self,
         input: torch.Tensor = None,
         shape: torch.Size = None,
+        share_across_tokens: bool = True,
         device: torch.device = None,
     ):
         assert ((shape is not None) and (device is not None)) or (
@@ -78,9 +80,15 @@ class _ConsistentMCDropout(torch.nn.Module):
         if input is not None:
             device = input.device
             if len(input.shape) == 3:
-                mask_shape = [1, 512, 4096]
+                if share_across_tokens:
+                    mask_shape = [1, 1, 4096]
+                else:
+                    mask_shape = [1, 512, 4096]
             elif len(input.shape) == 4:
-                mask_shape = [1, 16, 512, 512]
+                if share_across_tokens:
+                    mask_shape = [1, 16, 1, 1]
+                else:
+                    mask_shape = [1, 16, 512, 512]
             else:
                 raise ValueError("Invalid shape of input!")
         else:
@@ -118,7 +126,7 @@ class _ConsistentMCDropout(torch.nn.Module):
         return truncated_mask
 
 
-def make_dropouts_consistent(model):
+def make_dropouts_consistent(model, share_across_tokens=True):
     for mod in model.modules():
         if type(mod).__name__ == "Dropout":
             for method in [
@@ -135,4 +143,6 @@ def make_dropouts_consistent(model):
                     method,
                     types.MethodType(getattr(_ConsistentMCDropout, method), mod),
                 )
+            if not share_across_tokens:
+                mod._create_mask = partial(mod._create_mask, share_across_tokens=False)
             mod.mask = None

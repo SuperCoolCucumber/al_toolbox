@@ -20,8 +20,6 @@ from .al_strategy_utils import (
     calculate_triplet_scores,
     calculate_ddu_scores,
     calculate_ddu_scores_cv,
-    calculate_cal_scores,
-    calculate_badge_scores,
     choose_cm_samples,
 )
 from .strategy_utils import get_batchbald_batch

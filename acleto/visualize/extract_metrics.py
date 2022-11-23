@@ -23,7 +23,7 @@ DEFAULT_METRIC = {
     "cls": "accuracy",
     "ner": "overall_f1",
     "ats": "rougeL",
-    "nmt": "BLEU",
+    "nmt": "bleu",
 }
 
 AL_STRATEGIES = ["random", "mahalanobis", "nuq", "logits", "ddu", "margin", "oracle"]
@@ -105,7 +105,10 @@ def search_for_experiments(
     log_errors=False,
     metric_file_names=None,
     id_experiment=0,
+    exclude_cache_from_dir: bool = True
 ):
+    if exclude_cache_from_dir and "cache" in str(path):
+        return
     if prefix is None or prefix == "none":
         metrics_prefix = ""
     else:
@@ -113,11 +116,14 @@ def search_for_experiments(
 
     if metric_file_names is None:
         metric_file_names = METRIC_FILE_NAMES
+    elif isinstance(metric_file_names, str):
+        metric_file_names = [metrics_prefix]
 
     iterdir = list(path.iterdir())
     if (path / "config.yaml" in iterdir) and (
         (path / "acquisition_metrics.json" in iterdir)
         or (path / "metrics.json" in iterdir)
+        or any((path / file in iterdir for file in metric_file_names))
     ):
 
         try:
@@ -220,6 +226,7 @@ def collect_data(
     log_errors=False,
     metric_name=None,
     metric_file_names=None,
+    exclude_cache_from_dir: bool = True
 ):
     if metric_name is None:
         metric_name = DEFAULT_METRIC[task]
@@ -255,6 +262,7 @@ def collect_data(
             log_errors=log_errors,
             metric_file_names=metric_file_names,
             id_experiment=id_experiment,
+            exclude_cache_from_dir=exclude_cache_from_dir
         )
         for id_experiment, path in enumerate(paths)
     ]

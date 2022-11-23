@@ -80,8 +80,8 @@ SUCCESSOR_OVERRIDES = MODEL_OVERRIDES("successor_model")
 TARGET_OVERRIDES = MODEL_OVERRIDES("target_model")
 
 
-from al_benchmark.run_active_learning import run_active_learning
-from al_benchmark.run_full_data import run_full_data
+from scripts.run_active_learning import run_active_learning
+from scripts.run_full_data import run_full_data
 
 # TODO: add following tests:
 # full data on ner/cls for all frameworks
@@ -115,7 +115,7 @@ def run_al_test_with_params(
 
 
 def get_data_path():
-    data_path = "al_benchmark/data"
+    data_path = "../acleto/al_benchmark/data"
     if "al_benchmark" not in os.listdir():
         data_path = f"../{data_path}"
     return data_path
@@ -127,14 +127,14 @@ def get_data_path():
 
 
 def test_al_ner_transformers():
-    config_path = "../al_benchmark/configs"
+    config_path = "../acleto/al_benchmark/configs"
     config_name = "al_ner"
     test_name = "al ner transformers"
     run_al_test_with_params(config_path, config_name, AL_NER_TRANSFORMERS, test_name)
 
 
 def test_al_cls_transformers():
-    config_path = "../al_benchmark/configs"
+    config_path = "../acleto/al_benchmark/configs"
     config_name = "al_cls"
     test_name = "al cls transformers"
     run_al_test_with_params(config_path, config_name, AL_CLS_TRANSFORMERS, test_name)
