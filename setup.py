@@ -47,6 +47,8 @@ requirements = [
     "ipykernel==6.15.1",
     "small-text",
     "genbadge",
+    "tensorboardX",
+    "tensorboard",
 ]
 
 os.system("chmod a+x init.sh examples/*")

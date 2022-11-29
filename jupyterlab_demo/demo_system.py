@@ -1,6 +1,18 @@
 import os
+from hydra import compose, core, initialize
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+def set_visible_devices():
+    core.global_hydra.GlobalHydra.instance().clear()
+    initialize(config_path="./configs/")
+    config = compose(config_name=os.environ.get("CONFIG_NAME", "al_ner"))
+    devices=config.cuda_device
+    devices=str(devices)
+    if devices is None:
+        devices=""
+    os.environ["CUDA_VISIBLE_DEVICES"] = devices
+set_visible_devices()
+
+#os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 os.environ["NO_TQDM"] = "True"
 
 import warnings

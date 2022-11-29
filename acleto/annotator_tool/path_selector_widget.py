@@ -7,11 +7,11 @@ from ipywidgets import VBox
 
 def select_data_folders(path):
     attributes = []
-    for root, dirs, files in os.walk(path, topdown=False):
-        for name in dirs:
-            if "_checkpoints" not in os.path.join(root, name):
-                attributes.append((os.path.join(root, name)))
+    for name in os.listdir(path):
+        if "_checkpoints" in name or name.startswith('.') or not os.path.isdir(os.path.join(path, name)):
+            continue
 
+        attributes.append(os.path.join(path, name))
     return attributes
 
 

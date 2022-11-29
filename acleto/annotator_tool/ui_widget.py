@@ -57,6 +57,7 @@ class ActiveLearnerUiWidget(VBox):
         save_path="annotation",
         evaluation_callback=None,
         save_time=0,
+        save_checkpoints=True,
         *args,
         **kwargs,
     ):
@@ -128,6 +129,7 @@ class ActiveLearnerUiWidget(VBox):
             if annotation_converter is not None
             else AnnotationConverterDefault()
         )
+        self.save_checkpoints = save_checkpoints
 
     def __del__(self):
         self.stop()
@@ -216,6 +218,10 @@ class ActiveLearnerUiWidget(VBox):
         self._button_next_iter.disabled = True
         self._button_next_iter.icon = "clock-o"
 
+        if self.save_checkpoints == True:
+            save_path_checkpoint = self._save_path.split('/')[0] + '/' + self._save_path.split('/')[1] + '/'
+            self._save_checkpoint(save_path_checkpoint)
+
         ind, answ = self._get_answers()
         self._active_learner.make_iteration(ind, answ)
 
@@ -268,3 +274,8 @@ class ActiveLearnerUiWidget(VBox):
             json.dump(self._active_learner.get_annotation(), f)
 
         logger.info(f"Saved. File path: {save_path}")
+
+    def _save_checkpoint(self, path):
+        save_path = path + f'checkpoint_{self._iteration_num}'
+        self._active_learner._active_learn_alg.model.model.save_pretrained(save_path)
+        logger.info(f"Checkpoint saved. File path: {save_path}")
