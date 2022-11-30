@@ -346,7 +346,7 @@ def main():
         logger.info(f"Param: {args}")
         with open(os.path.join(args.dump_path, "parameters.json"), "w") as f:
             json.dump(vars(args), f, indent=4)
-        git_log(args.dump_path)
+        #git_log(args.dump_path)
 
     student_config_class, student_model_class, _ = MODEL_CLASSES[args.student_type]
     teacher_config_class, teacher_model_class, teacher_tokenizer_class = MODEL_CLASSES[
