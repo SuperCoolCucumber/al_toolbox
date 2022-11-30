@@ -34,7 +34,7 @@ from utils_data import (
     create_helper,
     set_global_logging_level,
 )
-
+import omegaconf
 import logging
 
 _log_format = f"%(asctime)s - [%(levelname)s] - %(name)s - (%(filename)s).%(funcName)s(%(lineno)d) - %(message)s"
@@ -68,6 +68,7 @@ class ALSystem:
         self.active_learner = None
         self.dev_metrics = []
         self.test_metrics = []
+        self.save_checkpoints = True
 
         logger.info("\n\n\n\n================= Starting system ================")
 
@@ -144,6 +145,11 @@ class ALSystem:
         self._model_name = config.acquisition_model.checkpoint
         self.text_field_name = config.data.text_name
         self.label_name = config.data.label_name
+
+        try:
+            self.save_checkpoints = config.al.save_checkpoints
+        except omegaconf.errors.ConfigAttributeError:
+            self.save_checkpoints = True
 
         # Loading data
         dataset_dir = Path(config.data.path) / config.data.dataset_name
@@ -256,6 +262,7 @@ class ALSystem:
             visualizer=SeqAnnotationVisualizer(tags=tags)
             if self.task == "ner"
             else None,
+            save_checkpoints=self.save_checkpoints,
         )
 
         return self.al_widget
