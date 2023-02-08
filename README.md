@@ -210,7 +210,29 @@ We recommend to use CPU for the robustness of the results. The tests for CUDA ar
 ## <a name="citation"></a>💬 Citation 
 
 ```
-
+@inproceedings{tsvigun_et_al_altoolbox,
+    title = "ALToolbox: A Set of Tools for Active Learning Annotation of
+Natural Language Texts",
+    author = "Tsvigun, Akim  and
+    Sanochkin, Leonid and
+    Larionov, Daniil and
+    Kuzmin, Artem and 
+    Vazhentsev, Eldar and
+    Lazichny, Ivan and
+    Khromov, Nikita and
+    Kireev, Danil and
+    Rubashevskii, Aleksandr and
+    Panchenko, Alexander and
+    Shahmatova, Olga and
+    Dylov, Dmitry and
+    Galitskiy, Igor and
+    Shelmanov, Artem",
+    booktitle = "Proceedings of the 2022 Conference on Empirical Methods in Natural Language Processing: System Demonstrations",
+    month = dec,
+    year = "2022",
+    address = "Online and Abu Dhabi, UAE",
+    publisher = "Association for Computational Linguistics",
+}
 ```
 
 ## 📄 License 
