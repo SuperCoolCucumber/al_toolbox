@@ -220,8 +220,12 @@ We recommend to use CPU for the robustness of the results. The tests for CUDA ar
       Lazichny, Ivan  and
       Khromov, Nikita  and
       Kireev, Danil  and
-      Rubashevskii, Aleksandr  and
-      Shahmatova, Olga",
+      Rubashevskii, Aleksandr and
+      Panchenko, Alexander and
+      Shahmatova, Olga and
+      Dylov, Dmitry and
+      Galitskiy, Igor and
+      Shelmanov, Artem",
     booktitle = "Proceedings of the The 2022 Conference on Empirical Methods in Natural Language Processing: System Demonstrations",
     month = dec,
     year = "2022",
