@@ -210,28 +210,26 @@ We recommend to use CPU for the robustness of the results. The tests for CUDA ar
 ## <a name="citation"></a>💬 Citation 
 
 ```
-@inproceedings{tsvigun_et_al_altoolbox,
-    title = "ALToolbox: A Set of Tools for Active Learning Annotation of
-Natural Language Texts",
+@inproceedings{tsvigun-etal-2022-altoolbox,
+    title = "{ALT}oolbox: A Set of Tools for Active Learning Annotation of Natural Language Texts",
     author = "Tsvigun, Akim  and
-    Sanochkin, Leonid and
-    Larionov, Daniil and
-    Kuzmin, Artem and 
-    Vazhentsev, Eldar and
-    Lazichny, Ivan and
-    Khromov, Nikita and
-    Kireev, Danil and
-    Rubashevskii, Aleksandr and
-    Panchenko, Alexander and
-    Shahmatova, Olga and
-    Dylov, Dmitry and
-    Galitskiy, Igor and
-    Shelmanov, Artem",
-    booktitle = "Proceedings of the 2022 Conference on Empirical Methods in Natural Language Processing: System Demonstrations",
+      Sanochkin, Leonid  and
+      Larionov, Daniil  and
+      Kuzmin, Gleb  and
+      Vazhentsev, Artem  and
+      Lazichny, Ivan  and
+      Khromov, Nikita  and
+      Kireev, Danil  and
+      Rubashevskii, Aleksandr  and
+      Shahmatova, Olga",
+    booktitle = "Proceedings of the The 2022 Conference on Empirical Methods in Natural Language Processing: System Demonstrations",
     month = dec,
     year = "2022",
-    address = "Online and Abu Dhabi, UAE",
+    address = "Abu Dhabi, UAE",
     publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2022.emnlp-demos.41",
+    pages = "406--434",
+    abstract = "We present ALToolbox {--} an open-source framework for active learning (AL) annotation in natural language processing. Currently, the framework supports text classification, sequence tagging, and seq2seq tasks. Besides state-of-the-art query strategies, ALToolbox provides a set of tools that help to reduce computational overhead and duration of AL iterations and increase annotated data reusability. The framework aims to support data scientists and researchers by providing an easy-to-deploy GUI annotation tool directly in the Jupyter IDE and an extensible benchmark for novel AL methods. We prepare a small demonstration of ALToolbox capabilities available a href={''}http://demo.nlpresearch.group{''}online/a. A demo video for ALToolbox is provided at: a href={''}http://demo-video.nlpresearch.group{''}http://demo-video.nlpresearch.group/a.The code of the framework is a href={''}https://github.com/AIRI-Institute/al{\_}toolbox{''}published/a under the MIT license.",
 }
 ```
 
