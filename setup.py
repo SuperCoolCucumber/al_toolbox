@@ -23,7 +23,7 @@ requirements = [
     "aioredis",
     "torch",
     "bs4",
-    "ray==1.9.1",
+    "ray",
     "transformers>=4.20.1",
     "nltk==3.6.5",
     "sacrebleu==1.5.0",
