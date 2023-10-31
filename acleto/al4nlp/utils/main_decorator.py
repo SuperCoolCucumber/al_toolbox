@@ -24,7 +24,7 @@ def main_decorator(func):
         with open(Path(auto_generated_dir) / "config.yaml", "w") as f:
             f.write(OmegaConf.to_yaml(config))
         # Enable offline mode for HuggingFace libraries if necessary
-        if config.offline_mode:
+        if "offline_mode" in config:
             os.environ["HF_DATASETS_OFFLINE"] = "1"
             os.environ["TRANSFORMERS_OFFLINE"] = "1"
 
